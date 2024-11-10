@@ -4,6 +4,8 @@ import solicitudRoutes from "./routes/solicitud.routes.js"
 
 const app = express();
 app.use(solicitudRoutes);
+app.use(express.json());
+app.use(express.urlencoded({ extended: true}));
 app.listen(port);
 console.log("server on port ", port);
 
