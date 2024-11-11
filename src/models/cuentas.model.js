@@ -27,8 +27,20 @@ const verificarCredenciales = async (usuario, contrasenia) => {
     // Si hay coincidencia, devuelve el rol; si no, devuelve null
     return rows.length > 0 ? rows[0].rol : null;
 };
-
+//buscar por email
+const buscarPorcorreo = async(correo) =>{
+    const query = {
+        text: `
+        select * from persona
+        where email=$1
+        `,
+        values: [correo]
+    }
+    const { rows }= await pool.query(query)
+    return rows[0];
+}
 export const solicitudModel = {
     crearCuenta,
     verificarCredenciales,
+    buscarPorcorreo
 };
