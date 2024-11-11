@@ -1,6 +1,6 @@
 
 import {pool} from "../db.js"
-
+//crear cuenta
 const crearCuenta = async({nombres, apellidoPat, apellidoMat, correo, ci}) =>{
     const query = {
         text: `
@@ -12,6 +12,19 @@ const crearCuenta = async({nombres, apellidoPat, apellidoMat, correo, ci}) =>{
     return rows;
 }
 
-export const solicitudModel = {
-    solicitudesPendientes
+//buscar por email
+const buscarPorcorreo = async(correo) =>{
+    const query = {
+        text: `
+        select * from persona
+        where email=$1
+        `,
+        values: [correo]
+    }
+    const { rows }= await pool.query(query)
+    return rows[0];
+}
+export const cuentasModel = {
+    crearCuenta,
+    buscarPorcorreo,
 }
