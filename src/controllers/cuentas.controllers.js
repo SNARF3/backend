@@ -7,7 +7,7 @@ const Registrar = async(req, res) => {
         if(user){
             return res.status(409).json({ok: false, msg: "Este correo ya fue registrado"})
         }
-        if()
+        //if()
 
         return res.send(rows);
     }catch(error){
