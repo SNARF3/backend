@@ -14,5 +14,5 @@ app.use(cuentasRoutes);
 
 // Iniciar el servidor
 app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
+    console.log(`Server running port ${port}`);
 });
