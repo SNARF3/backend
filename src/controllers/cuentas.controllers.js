@@ -5,6 +5,8 @@ import { cuentasModel } from "../models/cuentas.model.js";
 //npm i bcryptjs
 //npm i jsonwebtoken
 
+import nodemailer from 'nodemailer';
+
 const Registrar = async (req, res) => {
     try {
         const { nombres, apellidoPat, apellidoMat, correo, ci, rol } = req.body;
@@ -38,35 +40,68 @@ const Registrar = async (req, res) => {
                     hab: 2 
                 });
 
+                // Enviar el correo con el usuario y la contraseña
+                const transporter = nodemailer.createTransport({
+                    service: 'gmail',  // Servicio de correo (puede ser otro)
+                    auth: {
+                        user: 'birbumaxi@gmail.com',  // Tu correo electrónico
+                        pass: 'caswdqajkwiyfriz'         // Contraseña o contraseña de aplicación
+                    }
+                });
+
+                const mailOptions = {
+                    from: 'birbumaxi@gmail.com',
+                    to: correo,  // El correo del usuario
+                    subject: 'Cuenta registrada en UCB',
+                    text: `Hola ${nombres} ${apellidoPat},\n\nTu cuenta ha sido registrada exitosamente en el sistema de la UCB.\n\nTu usuario es: ${usuario}\nTu contraseña es: ${genPassword(ci, nombres)}\n\nPor favor, guarda esta información en un lugar seguro.\n\nSaludos,\nEquipo de UCB`
+                };
+
+                // Enviar el correo
+                transporter.sendMail(mailOptions, (error, info) => {
+                    if (error) {
+                        console.log('Error al enviar el correo:', error);
+                    } else {
+                        console.log('Correo enviado:', info.response);
+                    }
+                });
+
                 return res.status(201).json({ ok: true, msg: "Usuario registrado exitosamente", usuario: newAccount[0].id_cuenta });
             } catch (error) {
-                return res.status(409).json({ ok: false, msg: "Algo pasó, no se pudo registrar" + error});
+                return res.status(409).json({ ok: false, msg: "Algo pasó, no se pudo registrar" + error });
             }
         }
     } catch (error) {
         return res.status(500).json({
             ok: false,
-            msg: 'Error en la carga de solicitudes'+error
+            msg: 'Error en la carga de solicitudes' + error
         });
     }
 };
+
 
 const login = async (req, res) => {
     try {
         const { usuario, contrasenia } = req.body;
 
-        // Verificar si el usuario existe en la base de datos
-        const cuenta = await cuentasModel.buscarPorUsuario(usuario); 
+        // Verificar si el usuario existe en la base de datos y obtener el rol
+        const cuenta = await cuentasModel.buscarPorUsuario(usuario);
 
-        if (!cuenta) {
+        if (!cuenta || cuenta.length === 0) {
             return res.status(401).json({ mensaje: 'Usuario no encontrado' });
         }
-        //comparacion para datos hasheados
+
+        // Comparación de la contraseña (si está hasheada)
         const contraseniaValida = await bcryptjs.compare(contrasenia, cuenta[0].contrasenia);
         
         if (contraseniaValida) {
-            return res.status(200).json({ mensaje: 'Login exitoso', user: usuario});
-            //se regresa el usuario para otorgarle un token de inmediato
+            // Obtener el rol del usuario
+            const rol = cuenta[0].rol; // Asumiendo que el rol está en la respuesta de la base de datos
+
+            return res.status(200).json({
+                mensaje: 'Login exitoso',
+                user: usuario,
+                rol: rol // Devolvemos el rol junto con el usuario
+            });
         } else {
             return res.status(401).json({ mensaje: 'Credenciales incorrectas' });
         }
@@ -75,7 +110,8 @@ const login = async (req, res) => {
         console.error('Error al loggear:', error);
         res.status(500).json({ error: 'Error al verificar credenciales' });
     }
-}
+};
+
 
 
 
