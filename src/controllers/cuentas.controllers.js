@@ -1,17 +1,17 @@
 import bcryptjs from "bcryptjs";
 import { cuentasModel } from "../models/cuentas.model.js";
+import { sendEmail } from "../middlewares/sendEmail.js";
+
 
 //dependencias instaladas:
 //npm i bcryptjs
 //npm i jsonwebtoken
-
-import nodemailer from 'nodemailer';
+//npm i nodemailer
 
 const Registrar = async (req, res) => {
     try {
         const { nombres, apellidoPat, apellidoMat, correo, ci, rol } = req.body;
 
-        // Validación de datos básicos
         const user = await cuentasModel.buscarPorcorreo(correo);
         const dominioUcb = /^[a-zA-Z0-9._%+-]+@ucb\.edu\.bo$/;
         const letras = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
@@ -40,43 +40,31 @@ const Registrar = async (req, res) => {
                     hab: 2 
                 });
 
-                // Enviar el correo con el usuario y la contraseña
-                const transporter = nodemailer.createTransport({
-                    service: 'gmail',  // Servicio de correo (puede ser otro)
-                    auth: {
-                        user: 'birbumaxi@gmail.com',  // Tu correo electrónico
-                        pass: 'caswdqajkwiyfriz'         // Contraseña o contraseña de aplicación
-                    }
-                });
-
-                const mailOptions = {
-                    from: 'birbumaxi@gmail.com',
-                    to: correo,  // El correo del usuario
-                    subject: 'Cuenta registrada en UCB',
-                    text: `Hola ${nombres} ${apellidoPat},\n\nTu cuenta ha sido registrada exitosamente en el sistema de la UCB.\n\nTu usuario es: ${usuario}\nTu contraseña es: ${genPassword(ci, nombres)}\n\nPor favor, guarda esta información en un lugar seguro.\n\nSaludos,\nEquipo de UCB`
-                };
-
-                // Enviar el correo
-                transporter.sendMail(mailOptions, (error, info) => {
-                    if (error) {
-                        console.log('Error al enviar el correo:', error);
-                    } else {
-                        console.log('Correo enviado:', info.response);
-                    }
-                });
+                // Manejo del envio del correo con los datos necesarios
+                try {
+                    await sendEmail({
+                        to: correo,
+                        subject: 'Cuenta registrada en UCB',
+                        text: `Hola ${nombres} ${apellidoPat},\n\nTu cuenta ha sido registrada exitosamente en el sistema de la UCB.\n\nTu usuario es: ${usuario}\nTu contraseña es: ${genPassword(ci, nombres)}\n\nPor favor, guarda esta información en un lugar seguro.\n\nSaludos,\nEquipo de UCB`
+                    });
+                    console.log('Correo enviado correctamente');
+                } catch (emailError) {
+                    console.error('Error al enviar el correo:', emailError);
+                }
 
                 return res.status(201).json({ ok: true, msg: "Usuario registrado exitosamente", usuario: newAccount[0].id_cuenta });
             } catch (error) {
-                return res.status(409).json({ ok: false, msg: "Algo pasó, no se pudo registrar" + error });
+                return res.status(409).json({ ok: false, msg: "Algo pasó, no se pudo registrar: " + error });
             }
         }
     } catch (error) {
         return res.status(500).json({
             ok: false,
-            msg: 'Error en la carga de solicitudes' + error
+            msg: 'Error en la carga de solicitudes: ' + error
         });
     }
 };
+
 
 
 const login = async (req, res) => {

@@ -17,6 +17,20 @@ const solicitudesPendientes = async() =>{
     return rows;
 }
 
+const solicitudPendId = async(id_formulario) =>{
+    const query = {
+        text: `
+        select formulario.ci, formulario.nombres, formulario.apellido_paterno, formulario.apellido_materno, formulario.carta, formulario.detalle_propuesta, formulario.nombre_propuesta
+        from formulario
+        where id_formulario=$1
+        `,
+        values: [id_formulario],
+    }
+    const { rows }= await pool.query(query)
+    return rows;
+}
+
 export const solicitudModel = {
-    solicitudesPendientes
+    solicitudesPendientes,
+    solicitudPendId,
 }
