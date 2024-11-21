@@ -4,6 +4,10 @@ import { solicitudController } from "../controllers/solicitud.controllers.js";
 
 const router = Router();
 
+//Tabla de solicitudes Pendientes:
 router.get("/solicitudesPendientes", solicitudController.solicitudesPendientes)
+
+//Datos de un formulario Especifico por su id:
+router.get("/solicitudesPendientes/:id_formulario", solicitudController.solicitudesPendId)
 
 export default router;
