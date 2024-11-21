@@ -36,9 +36,9 @@ export const generarToken = (usuario) => {
     const payload = {
         id_cuenta: usuario.id_cuenta,
         nombres: usuario.nombres,
-        apellidoPaterno: usuario.apellido_paterno,
-        apellidoMaterno: usuario.apellido_materno,
-        nroDocumento: usuario.ci,
+        apellidoPaterno: usuario.apellidoPaterno,
+        apellidoMaterno: usuario.apellidoMaterno,
+        nroDocumento: usuario.nroDocumento,
         correo: usuario.correo,
         rol: usuario.rol,  
     };
@@ -61,16 +61,16 @@ export const decodedToken = async (token) => {
             }
 
             const datosBasicos = decoded;  // Aquí usamos 'decoded' directamente
-
             const data = {
-                nroDocumento: datosBasicos.ci,
+                nroDocumento: datosBasicos.nroDocumento,
                 nombres: datosBasicos.nombres,
                 apellidoPaterno: datosBasicos.apellidoPaterno,
                 apellidoMaterno: datosBasicos.apellidoMaterno,
                 correo: datosBasicos.correo,
                 id_cuenta: datosBasicos.id_cuenta
             };
-            resolve(data);  // Resolver la promesa con los datos decodificados
+            resolve(data);
+            console.log(data) // Resolver la promesa con los datos decodificados
         });
     });
 };

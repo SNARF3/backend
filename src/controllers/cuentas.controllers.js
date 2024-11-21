@@ -89,21 +89,24 @@ const login = async (req, res) => {
 
         // Comparación de la contraseña (si está hasheada)
         const contraseniaValida = await bcryptjs.compare(contraseniaUser, contrasenia);
-        
+        const nroDocumento=ci;
+        const apellidoPaterno=apellido_paterno;
+        const apellidoMaterno=apellido_materno;
         if (contraseniaValida) {
             // Si las credenciales son válidas, generar el token
             const usuarioGen = {
                 id_cuenta: id_cuenta,
                 nombres: nombres,
-                apellidoPaterno: apellido_paterno,
-                apellidoMaterno: apellido_materno,
-                nroDocumento: ci,
+                apellidoPaterno: apellidoPaterno,
+                apellidoMaterno: apellidoMaterno,
+                nroDocumento: nroDocumento,
                 correo: correo,
                 rol: rol,
             };
 
             console.log('Usuario generado para el token:', usuarioGen);
             const token = generarToken(usuarioGen);
+            console.log(usuarioEncontrado)
             return res.status(200).json({
                 mensaje: 'Login exitoso',
                 token: token,
