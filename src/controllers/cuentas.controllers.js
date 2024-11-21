@@ -1,6 +1,7 @@
 import bcryptjs from "bcryptjs";
 import { cuentasModel } from "../models/cuentas.model.js";
 import { sendEmail } from "../middlewares/sendEmail.js";
+import {generarToken} from "../middlewares/tokens.js"
 
 
 //dependencias instaladas:
@@ -69,26 +70,46 @@ const Registrar = async (req, res) => {
 
 const login = async (req, res) => {
     try {
-        const { usuario, contrasenia } = req.body;
+        const { usuario, contraseniaUser } = req.body;
+
+        if (!usuario || !contraseniaUser) {
+            return res.status(400).json({ mensaje: 'Usuario y contraseña son obligatorios' });
+        }
 
         // Verificar si el usuario existe en la base de datos y obtener el rol
-        const cuenta = await cuentasModel.buscarPorUsuario(usuario);
-
-        if (!cuenta || cuenta.length === 0) {
+        const usuarioEncontradoArray = await cuentasModel.buscarPorUsuario(usuario);
+        
+        if (!usuarioEncontradoArray || usuarioEncontradoArray.length === 0) {
             return res.status(401).json({ mensaje: 'Usuario no encontrado' });
         }
 
-        // Comparación de la contraseña (si está hasheada)
-        const contraseniaValida = await bcryptjs.compare(contrasenia, cuenta[0].contrasenia);
-        
-        if (contraseniaValida) {
-            // Obtener el rol del usuario
-            const rol = cuenta[0].rol; // Asumiendo que el rol está en la respuesta de la base de datos
+        const usuarioEncontrado = usuarioEncontradoArray[0];  // Accedemos al primer objeto del arreglo
 
+        const { id_cuenta, contrasenia, nombres, apellido_paterno, apellido_materno, ci, correo, rol } = usuarioEncontrado;
+
+        // Comparación de la contraseña (si está hasheada)
+        const contraseniaValida = await bcryptjs.compare(contraseniaUser, contrasenia);
+        const nroDocumento=ci;
+        const apellidoPaterno=apellido_paterno;
+        const apellidoMaterno=apellido_materno;
+        if (contraseniaValida) {
+            // Si las credenciales son válidas, generar el token
+            const usuarioGen = {
+                id_cuenta: id_cuenta,
+                nombres: nombres,
+                apellidoPaterno: apellidoPaterno,
+                apellidoMaterno: apellidoMaterno,
+                nroDocumento: nroDocumento,
+                correo: correo,
+                rol: rol,
+            };
+
+            console.log('Usuario generado para el token:', usuarioGen);
+            const token = generarToken(usuarioGen);
+            console.log(usuarioEncontrado)
             return res.status(200).json({
                 mensaje: 'Login exitoso',
-                user: usuario,
-                rol: rol // Devolvemos el rol junto con el usuario
+                token: token,
             });
         } else {
             return res.status(401).json({ mensaje: 'Credenciales incorrectas' });
@@ -99,7 +120,6 @@ const login = async (req, res) => {
         res.status(500).json({ error: 'Error al verificar credenciales' });
     }
 };
-
 
 
 

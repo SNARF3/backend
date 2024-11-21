@@ -10,6 +10,7 @@ const EnviarFormularioPG = async ({
     proyectoTrabajo,
     titulo_propuesta,
     detallePropuesta,
+    id_cuenta,
 }) => {
     try {
         const query = `
@@ -26,7 +27,7 @@ const EnviarFormularioPG = async ({
                 tipo,
                 fecha     
             ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-        RETURNING *;
+        RETURNING id_formulario;
     `;
     const values = [nroDocumento ,nombres, apellidoPaterno, apellidoMaterno, correo, categoria, proyectoTrabajo, titulo_propuesta, detallePropuesta, 1, 'now()'];
     const result = await pool.query(query, values);
@@ -36,6 +37,10 @@ const EnviarFormularioPG = async ({
         throw error;
     }
 };
+
+const RegistroRelation = async ({id_cuenta, id_formulario})=>{
+
+}
 
 export const formularioModel = {
     EnviarFormularioPG,

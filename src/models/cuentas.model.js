@@ -56,13 +56,14 @@ const buscarPorcorreo = async(correo) =>{
 const buscarPorUsuario = async (usuario) => {
     const query = {
         text: `
-        SELECT contrasenia, rol FROM cuentas WHERE usuario = $1
+        select cu.id_cuenta, cu.contrasenia ,per.nombres, per.apellido_paterno, per.apellido_materno, per.ci, cu.correo, cu.rol
+        from cuentas cu, persona per
+        where cu.id_persona = per.id_persona
+        and cu.usuario=$1
         `,
         values: [usuario]
     };
     const { rows } = await pool.query(query);
-
-    // Devolver la fila de resultados, que ahora incluye 'contrasenia' y 'rol'
     return rows;
 };
 
