@@ -18,4 +18,9 @@ router.post(
     formularioController.enviarFormulario // El controlador que maneja el formulario
 );
 
+//Tabla de solicitudes Pendientes:
+router.patch("/cambiarEstado/:id_formulario/:nuevo_estado", formularioController.cambiarEstadoFormulario);
+
+
+
 export default router;

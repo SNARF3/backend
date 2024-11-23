@@ -8,6 +8,7 @@ import {generarToken} from "../middlewares/tokens.js"
 //npm i bcryptjs
 //npm i jsonwebtoken
 //npm i nodemailer
+//npm i jwt_decode
 
 const Registrar = async (req, res) => {
     try {
@@ -67,7 +68,6 @@ const Registrar = async (req, res) => {
 };
 
 
-
 const login = async (req, res) => {
     try {
         const { usuario, contraseniaUser } = req.body;
@@ -89,9 +89,10 @@ const login = async (req, res) => {
 
         // Comparación de la contraseña (si está hasheada)
         const contraseniaValida = await bcryptjs.compare(contraseniaUser, contrasenia);
-        const nroDocumento=ci;
-        const apellidoPaterno=apellido_paterno;
-        const apellidoMaterno=apellido_materno;
+        const nroDocumento = ci;
+        const apellidoPaterno = apellido_paterno;
+        const apellidoMaterno = apellido_materno;
+        
         if (contraseniaValida) {
             // Si las credenciales son válidas, generar el token
             const usuarioGen = {
@@ -101,7 +102,7 @@ const login = async (req, res) => {
                 apellidoMaterno: apellidoMaterno,
                 nroDocumento: nroDocumento,
                 correo: correo,
-                rol: rol,
+                rol: rol,  // Se incluye el rol en el objeto del usuario
             };
 
             console.log('Usuario generado para el token:', usuarioGen);
@@ -110,6 +111,7 @@ const login = async (req, res) => {
             return res.status(200).json({
                 mensaje: 'Login exitoso',
                 token: token,
+                rol: rol, // Devolver el rol junto con el token
             });
         } else {
             return res.status(401).json({ mensaje: 'Credenciales incorrectas' });
@@ -120,6 +122,7 @@ const login = async (req, res) => {
         res.status(500).json({ error: 'Error al verificar credenciales' });
     }
 };
+
 
 
 
