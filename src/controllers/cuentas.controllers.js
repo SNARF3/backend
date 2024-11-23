@@ -1,17 +1,18 @@
 import bcryptjs from "bcryptjs";
 import { cuentasModel } from "../models/cuentas.model.js";
+import { sendEmail } from "../middlewares/sendEmail.js";
+import {generarToken} from "../middlewares/tokens.js"
+
 
 //dependencias instaladas:
 //npm i bcryptjs
 //npm i jsonwebtoken
-
-import nodemailer from 'nodemailer';
+//npm i nodemailer
 
 const Registrar = async (req, res) => {
     try {
         const { nombres, apellidoPat, apellidoMat, correo, ci, rol } = req.body;
 
-        // Validación de datos básicos
         const user = await cuentasModel.buscarPorcorreo(correo);
         const dominioUcb = /^[a-zA-Z0-9._%+-]+@ucb\.edu\.bo$/;
         const letras = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
@@ -40,67 +41,75 @@ const Registrar = async (req, res) => {
                     hab: 2 
                 });
 
-                // Enviar el correo con el usuario y la contraseña
-                const transporter = nodemailer.createTransport({
-                    service: 'gmail',  // Servicio de correo (puede ser otro)
-                    auth: {
-                        user: 'birbumaxi@gmail.com',  // Tu correo electrónico
-                        pass: 'caswdqajkwiyfriz'         // Contraseña o contraseña de aplicación
-                    }
-                });
-
-                const mailOptions = {
-                    from: 'birbumaxi@gmail.com',
-                    to: correo,  // El correo del usuario
-                    subject: 'Cuenta registrada en UCB',
-                    text: `Hola ${nombres} ${apellidoPat},\n\nTu cuenta ha sido registrada exitosamente en el sistema de la UCB.\n\nTu usuario es: ${usuario}\nTu contraseña es: ${genPassword(ci, nombres)}\n\nPor favor, guarda esta información en un lugar seguro.\n\nSaludos,\nEquipo de UCB`
-                };
-
-                // Enviar el correo
-                transporter.sendMail(mailOptions, (error, info) => {
-                    if (error) {
-                        console.log('Error al enviar el correo:', error);
-                    } else {
-                        console.log('Correo enviado:', info.response);
-                    }
-                });
+                // Manejo del envio del correo con los datos necesarios
+                try {
+                    await sendEmail({
+                        to: correo,
+                        subject: 'Cuenta registrada en UCB',
+                        text: `Hola ${nombres} ${apellidoPat},\n\nTu cuenta ha sido registrada exitosamente en el sistema de la UCB.\n\nTu usuario es: ${usuario}\nTu contraseña es: ${genPassword(ci, nombres)}\n\nPor favor, guarda esta información en un lugar seguro.\n\nSaludos,\nEquipo de UCB`
+                    });
+                    console.log('Correo enviado correctamente');
+                } catch (emailError) {
+                    console.error('Error al enviar el correo:', emailError);
+                }
 
                 return res.status(201).json({ ok: true, msg: "Usuario registrado exitosamente", usuario: newAccount[0].id_cuenta });
             } catch (error) {
-                return res.status(409).json({ ok: false, msg: "Algo pasó, no se pudo registrar" + error });
+                return res.status(409).json({ ok: false, msg: "Algo pasó, no se pudo registrar: " + error });
             }
         }
     } catch (error) {
         return res.status(500).json({
             ok: false,
-            msg: 'Error en la carga de solicitudes' + error
+            msg: 'Error en la carga de solicitudes: ' + error
         });
     }
 };
 
 
+
 const login = async (req, res) => {
     try {
-        const { usuario, contrasenia } = req.body;
+        const { usuario, contraseniaUser } = req.body;
+
+        if (!usuario || !contraseniaUser) {
+            return res.status(400).json({ mensaje: 'Usuario y contraseña son obligatorios' });
+        }
 
         // Verificar si el usuario existe en la base de datos y obtener el rol
-        const cuenta = await cuentasModel.buscarPorUsuario(usuario);
-
-        if (!cuenta || cuenta.length === 0) {
+        const usuarioEncontradoArray = await cuentasModel.buscarPorUsuario(usuario);
+        
+        if (!usuarioEncontradoArray || usuarioEncontradoArray.length === 0) {
             return res.status(401).json({ mensaje: 'Usuario no encontrado' });
         }
 
-        // Comparación de la contraseña (si está hasheada)
-        const contraseniaValida = await bcryptjs.compare(contrasenia, cuenta[0].contrasenia);
-        
-        if (contraseniaValida) {
-            // Obtener el rol del usuario
-            const rol = cuenta[0].rol; // Asumiendo que el rol está en la respuesta de la base de datos
+        const usuarioEncontrado = usuarioEncontradoArray[0];  // Accedemos al primer objeto del arreglo
 
+        const { id_cuenta, contrasenia, nombres, apellido_paterno, apellido_materno, ci, correo, rol } = usuarioEncontrado;
+
+        // Comparación de la contraseña (si está hasheada)
+        const contraseniaValida = await bcryptjs.compare(contraseniaUser, contrasenia);
+        const nroDocumento=ci;
+        const apellidoPaterno=apellido_paterno;
+        const apellidoMaterno=apellido_materno;
+        if (contraseniaValida) {
+            // Si las credenciales son válidas, generar el token
+            const usuarioGen = {
+                id_cuenta: id_cuenta,
+                nombres: nombres,
+                apellidoPaterno: apellidoPaterno,
+                apellidoMaterno: apellidoMaterno,
+                nroDocumento: nroDocumento,
+                correo: correo,
+                rol: rol,
+            };
+
+            console.log('Usuario generado para el token:', usuarioGen);
+            const token = generarToken(usuarioGen);
+            console.log(usuarioEncontrado)
             return res.status(200).json({
                 mensaje: 'Login exitoso',
-                user: usuario,
-                rol: rol // Devolvemos el rol junto con el usuario
+                token: token,
             });
         } else {
             return res.status(401).json({ mensaje: 'Credenciales incorrectas' });
@@ -111,7 +120,6 @@ const login = async (req, res) => {
         res.status(500).json({ error: 'Error al verificar credenciales' });
     }
 };
-
 
 
 
