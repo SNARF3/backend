@@ -41,7 +41,7 @@ export const enviarFormulario = async (req, res) => {
 
 export const cambiarEstadoFormulario = async (req, res) => {
     try {
-        const { id_formulario, nuevo_estado } = req.body;
+        const { id_formulario, nuevo_estado } = req.params;  // Obtener los parámetros de la URL
 
         // Validar entrada
         if (!id_formulario || nuevo_estado === undefined) {
@@ -68,8 +68,38 @@ export const cambiarEstadoFormulario = async (req, res) => {
     }
 };
 
+// Insertar un registro en formulario_estado
+export const insertarFormularioEstado = async (req, res) => {
+    try {
+        const { id_formulario, comentario } = req.body; // Obtener datos del cuerpo de la solicitud
 
-export const formularioController ={
+        // Validar entrada
+        if (!id_formulario || !comentario) {
+            return res.status(400).json({
+                error: "Faltan parámetros: 'id_formulario' y/o 'comentario'",
+            });
+        }
+
+        // Insertar el registro en la base de datos
+        const formularioEstado = await formularioModel.InsertarFormularioEstado({
+            id_formulario,
+            comentario,
+        });
+
+        res.status(201).json({
+            message: "Registro insertado en formulario_estado con éxito",
+            formularioEstado,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            error: "Ocurrió un error al insertar en formulario_estado: " + error.message,
+        });
+    }
+};
+
+export const formularioController = {
     enviarFormulario,
     cambiarEstadoFormulario,
-}
+    insertarFormularioEstado, // Exportamos la nueva función
+};
