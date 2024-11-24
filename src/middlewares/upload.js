@@ -29,7 +29,7 @@ const storage = multer.diskStorage({
   },
   filename: (req, file, cb) => {
     // Generar un nombre único para el archivo
-    const uniqueName = `${Date.now()}-${file.originalname}`;
+    const uniqueName = `${file.originalname}`;
     cb(null, uniqueName);
   },
 });
