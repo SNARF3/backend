@@ -67,6 +67,25 @@ const buscarPorUsuario = async (usuario) => {
     return rows;
 };
 
+const obtenerCuentasDocentesYEstudiantes = async () => {
+    const query = {
+        text: `
+        SELECT 
+            p.ci, 
+            p.nombres, 
+            p.apellido_paterno, 
+            p.apellido_materno, 
+            c.correo, 
+            c.usuario, 
+            c.rol
+        FROM cuentas c, persona p
+        WHERE c.rol IN (2, 3) and p.id_persona = c.id_persona
+        `,
+        values: [],
+    };
+    const { rows } = await pool.query(query);
+    return rows;
+};
 
 export const cuentasModel = {
     crearCuenta,
@@ -74,4 +93,5 @@ export const cuentasModel = {
     buscarPorcorreo,
     crearUsuario,
     buscarPorUsuario,
+    obtenerCuentasDocentesYEstudiantes, // Nueva función añadida
 };

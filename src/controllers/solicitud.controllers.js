@@ -41,8 +41,23 @@ const solicitudesPorEstado = async (req, res) => {
     }
 };
 
+const revisionesId = async (req, res) => {
+    try {
+        const { id_cuenta } = req.params; // ID del formulario recibido
+        const rows = await solicitudModel.revisionId(id_cuenta); // Llama al modelo
+        return res.send(rows); // Responde con los datos obtenidos
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            ok: false,
+            msg: 'Error al obtener los datos del formulario: ' + error,
+        });
+    }
+};
+
 export const solicitudController = {
     solicitudesPendientes,
     solicitudesPendId,
     solicitudesPorEstado, // Nueva función añadida
+    revisionesId,
 };

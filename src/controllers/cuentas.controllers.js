@@ -112,6 +112,7 @@ const login = async (req, res) => {
                 mensaje: 'Login exitoso',
                 token: token,
                 rol: rol, // Devolver el rol junto con el token
+                id_cuenta: id_cuenta,
             });
         } else {
             return res.status(401).json({ mensaje: 'Credenciales incorrectas' });
@@ -123,7 +124,27 @@ const login = async (req, res) => {
     }
 };
 
+const obtenerDocentesYEstudiantes = async (req, res) => {
+    try {
+        // Llama al modelo para obtener las cuentas de docentes y estudiantes
+        const cuentas = await cuentasModel.obtenerCuentasDocentesYEstudiantes();
 
+        // Responde con éxito y los datos obtenidos
+        return res.status(200).json({ 
+            ok: true, 
+            cuentas 
+        });
+    } catch (error) {
+        // Loguea el error para depuración
+        console.error('Error al obtener docentes y estudiantes:', error);
+
+        // Envía una respuesta de error al cliente
+        return res.status(500).json({ 
+            ok: false, 
+            error: 'Error al obtener las cuentas de docentes y estudiantes' 
+        });
+    }
+};
 
 
 
@@ -138,5 +159,6 @@ function genUser(ci, apellidoPat) {
 
 export const cuentasController = {
     Registrar,
-    login
+    login,
+    obtenerDocentesYEstudiantes,
 };

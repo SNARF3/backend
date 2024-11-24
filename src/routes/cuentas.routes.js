@@ -9,4 +9,6 @@ router.post('/login', cuentasController.login);
 
 router.post('/Registrar-Usuario', cuentasController.Registrar);
 
+router.get("/obtUsuarios", cuentasController.obtenerDocentesYEstudiantes);
+
 export default router;
