@@ -28,7 +28,40 @@ const solicitudPendId = async(id_formulario) =>{
     return rows;
 }
 
-export const solicitudModel = {
+const solicitudesPorEstado = async () => {
+    const query = {
+      text: `
+        SELECT 
+          formulario.ci,
+          formulario.nombres,
+          formulario.apellido_paterno,
+          formulario.apellido_materno,
+          formulario.nombre_propuesta AS titulo,
+          formulario.fecha,
+          formulario.estado,
+          formulario_estado.comentario
+        FROM formulario
+        LEFT JOIN formulario_estado 
+          ON formulario.id_formulario = formulario_estado.id_formulario
+        WHERE formulario.estado IN (4, 5, 6)
+        GROUP BY 
+          formulario.ci, 
+          formulario.nombres, 
+          formulario.apellido_paterno, 
+          formulario.apellido_materno, 
+          formulario.nombre_propuesta, 
+          formulario.fecha, 
+          formulario.estado, 
+          formulario_estado.comentario
+      `,
+    };
+  
+    const { rows } = await pool.query(query);
+    return rows;
+  };
+
+  export const solicitudModel = {
     solicitudesPendientes,
     solicitudPendId,
-}
+    solicitudesPorEstado, // Nueva función añadida
+  };

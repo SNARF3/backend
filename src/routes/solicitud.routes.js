@@ -10,4 +10,6 @@ router.get("/solicitudesPendientes/:estado", solicitudController.solicitudesPend
 //Datos de un formulario Especifico por su id:
 router.get("/formId/:id_formulario", solicitudController.solicitudesPendId)
 
+router.get("/formRevisados", solicitudController.solicitudesPorEstado)
+
 export default router;
