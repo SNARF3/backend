@@ -60,8 +60,23 @@ const solicitudesPorEstado = async () => {
     return rows;
   };
 
+  const revisionId = async (id_cuenta) => {
+    const query = `
+        SELECT 
+            f.id_formulario, nombre_propuesta, f.categoria, f.estado, f.fecha, fe.comentario, fe.id_formulario
+        FROM 
+            formulario f, formulario_estado fe 
+        WHERE f.estado IN (4, 5, 6)
+            and f.id_formulario = fe.id_formulario
+            and f.id_cuenta = $1
+    `;
+    const { rows } = await pool.query(query, [id_cuenta]);
+    return rows;
+};
+
   export const solicitudModel = {
     solicitudesPendientes,
     solicitudPendId,
     solicitudesPorEstado, // Nueva función añadida
+    revisionId,
   };

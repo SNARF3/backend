@@ -112,6 +112,7 @@ const login = async (req, res) => {
                 mensaje: 'Login exitoso',
                 token: token,
                 rol: rol, // Devolver el rol junto con el token
+                id_cuenta: id_cuenta,
             });
         } else {
             return res.status(401).json({ mensaje: 'Credenciales incorrectas' });
