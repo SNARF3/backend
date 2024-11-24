@@ -27,11 +27,12 @@ const EnviarFormularioPG = async ({
                 detalle_propuesta,
                 estado,
                 tipo,
-                fecha    
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+                fecha,
+                id_cuenta    
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
         RETURNING id_formulario;
     `;
-    const values = [nroDocumento ,nombres, apellidoPaterno, apellidoMaterno, correo, categoria, proyectoTrabajo, titulo_propuesta, detallePropuesta, 1, 1, 'now()'];
+    const values = [nroDocumento ,nombres, apellidoPaterno, apellidoMaterno, correo, categoria, proyectoTrabajo, titulo_propuesta, detallePropuesta, 1, 1, 'now()', id_cuenta];
     const result = await pool.query(query, values);
     return result.rows[0]; // Devuelve el registro insertado
     } catch (error) {
