@@ -109,19 +109,29 @@ const verificarIdYContrasenia = async (id_usuario, contrasenia) => {
     return rows.length > 0;
 };
 
-async function actualizarContrasenia(id_cuenta, nuevaContraseniaHash) {
-    const sql = `UPDATE cuentas SET contrasenia = ? WHERE id_cuenta = ?`;
-    const values = [nuevaContraseniaHash, id_cuenta];
+const actualizarContrasenia = async (id_cuenta, nuevaContraseniaHash) => {
+    const query = {
+        text: `
+        UPDATE cuentas 
+        SET contrasenia = $1 
+        WHERE id_cuenta = $2
+        `,
+        values: [nuevaContraseniaHash, id_cuenta],
+    };
 
-    // Ejecutar la consulta y devolver el resultado
     try {
-        const [results] = await connection.promise().query(sql, values);
-        return results;  // Retorna el resultado de la consulta
+        const result = await pool.query(query);  // Ejecutamos la consulta
+        console.log('Resultado de la consulta:', result);  // Agrega un log para ver el resultado
+
+        // Retorna solo el rowCount para verificar las filas afectadas
+        return { success: result.rowCount > 0, affectedRows: result.rowCount };
     } catch (error) {
         console.error('Error al actualizar la contraseña:', error);
-        throw error;  // Lanza el error si algo sale mal
+        throw error;  // Lanzamos el error si algo sale mal
     }
-}
+};
+
+
 
 export const cuentasModel = {
     crearCuenta,

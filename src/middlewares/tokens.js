@@ -40,7 +40,8 @@ export const generarToken = (usuario) => {
         apellidoMaterno: usuario.apellidoMaterno,
         nroDocumento: usuario.nroDocumento,
         correo: usuario.correo,
-        rol: usuario.rol,  
+        rol: usuario.rol, 
+        usuario: usuario.usuario, 
     };
 
     // Firmamos el token y lo devolvemos, con una duración de 1 hora
