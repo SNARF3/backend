@@ -56,6 +56,56 @@ export const enviarFormulario = async (req, res) => {
 };
 
 
+
+export const enviarTrabajoDirigido = async (req, res) => {
+    try {
+        const { token } = req.body;
+
+        // Decodificar el token
+        const data = await decodedToken(token);
+        if (!data) {
+            return res.status(400).json({ error: "Token inválido o expirado" });
+        }
+
+        const { nroDocumento, nombres, apellidoPaterno, apellidoMaterno, correo, id_cuenta } = data;
+
+        // Validar que se haya subido el archivo necesario
+        const proyectoTrabajo = req.files?.proyectoTrabajo?.[0]?.path || null;
+        
+        if (!proyectoTrabajo) {
+            return res.status(400).json({ error: "El archivo del proyecto de trabajo es obligatorio" });
+        }
+
+        // Llamar al modelo para guardar la información
+        const trabajoDirigido = await formularioModel.EnviarTrabajoDirigidoPG({
+            nroDocumento,
+            nombres,
+            apellidoPaterno,
+            apellidoMaterno,
+            correo,
+            proyectoTrabajo,
+            id_cuenta,
+        });
+
+        // Respuesta exitosa
+        res.status(201).json({
+            message: "Trabajo dirigido enviado con éxito",
+            trabajoDirigido,
+        });
+    } catch (error) {
+        console.error("Error al enviar el trabajo dirigido:", error);
+
+        // Responder con un error más detallado
+        res.status(500).json({
+            error: "Ocurrió un error al enviar el trabajo dirigido",
+            details: error.message || error,
+        });
+    }
+};
+
+
+
+
 export const cambiarEstadoFormulario = async (req, res) => {
   try {
     const { id_formulario, nuevo_estado } = req.params; // Obtener los parámetros de la URL
@@ -118,8 +168,9 @@ export const insertarFormularioEstado = async (req, res) => {
   }
 };
 
-export const formularioController = {
-  enviarFormulario,
-  cambiarEstadoFormulario,
-  insertarFormularioEstado, // Exportamos la nueva función
+export const solicitudController = {
+    solicitudesPendientes,
+    solicitudesPendId,
+    solicitudesPorEstado, // Nueva función añadida
+    revisionesId,
 };

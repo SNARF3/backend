@@ -14,6 +14,14 @@ router.post(
   enviarFormulario // El controlador que maneja el formulario
 );
 
+router.post(
+    "/RegistrarTrabajoDirigido", 
+    upload.fields([
+        { name: 'proyectoTrabajo', maxCount: 1 }  // Campo para 'proyectoTrabajo'
+    ]), 
+    formularioController.enviarTrabajoDirigido // El controlador que maneja el formulario
+);
+
 //Tabla de solicitudes Pendientes:
 router.patch("/cambiarEstado/:id_formulario/:nuevo_estado", formularioController.cambiarEstadoFormulario);
 

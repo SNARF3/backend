@@ -4,13 +4,13 @@ export const sendEmail = async ({ to, subject, text }) => {
     const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
-            user: 'birbumaxi@gmail.com', // Tu correo electrónico
-            pass: 'caswdqajkwiyfriz'    // Contraseña o contraseña de aplicación
+            user: 'gestiontallerdegradoucb@gmail.com', // Tu correo electrónico
+            pass: 'prhb cfzz ejst dzvr'    // Contraseña o contraseña de aplicación
         }
     });
 
     const mailOptions = {
-        from: 'birbumaxi@gmail.com',
+        from: 'gestiontallerdegradoucb@gmail.com',
         to,
         subject,
         text
