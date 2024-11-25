@@ -169,7 +169,7 @@ export const insertarFormularioEstado = async (req, res) => {
 };
 
 export const formularioController = {
-    enviarFormulario,
-    cambiarEstadoFormulario,
-    insertarFormularioEstado, // Exportamos la nueva funci
-  };
+  enviarFormulario,
+  cambiarEstadoFormulario,
+  insertarFormularioEstado, // Exportamos la nueva función
+};
