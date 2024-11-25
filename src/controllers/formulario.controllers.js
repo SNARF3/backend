@@ -1,4 +1,5 @@
 import { formularioModel } from "../models/formulario.model.js";
+import { uploadToGoogleDrive, cartasFolderId, propuestasFolderId } from '../middlewares/upload.js';
 import { decodedToken } from "../middlewares/tokens.js";
 
 export const enviarFormulario = async (req, res) => {
@@ -9,15 +10,28 @@ export const enviarFormulario = async (req, res) => {
             titulo_propuesta
         } = req.body;
         
-
-        const data = await decodedToken(token)
-        //console.log(data);
+        // Decodificar el token
+        const data = await decodedToken(token);
         const { nroDocumento, nombres, apellidoPaterno, apellidoMaterno, correo, id_cuenta } = data;
 
-      // Rutas de los archivos subidos para enviarlo al insert del modelo 
-        const proyectoTrabajo = req.files?.proyectoTrabajo?.[0]?.path || null;
-        const detallePropuesta = req.files?.detallePropuesta?.[0]?.path || null;
+        // Inicializar las rutas de los archivos a null
+        let proyectoTrabajo = null;
+        let detallePropuesta = null;
+
+        // Verificar si los archivos existen y subirlos a Google Drive
+        if (req.files?.proyectoTrabajo?.[0]) {
+            const file = req.files.proyectoTrabajo[0];
+            const fileLink = await uploadToGoogleDrive(file.buffer, file.originalname, cartasFolderId);  // Usar el ID de la carpeta correspondiente
+            proyectoTrabajo = fileLink;  // Guardar el link del archivo subido
+        }
+
+        if (req.files?.detallePropuesta?.[0]) {
+            const file = req.files.detallePropuesta[0];
+            const fileLink = await uploadToGoogleDrive(file.buffer, file.originalname, propuestasFolderId);  // Usar el ID de la carpeta correspondiente
+            detallePropuesta = fileLink;  // Guardar el link del archivo subido
+        }
         
+        // Guardar los datos del formulario, incluyendo los enlaces de los archivos subidos
         const formulario = await formularioModel.EnviarFormularioPG({
             nroDocumento,
             nombres,
@@ -35,73 +49,77 @@ export const enviarFormulario = async (req, res) => {
             message: "Formulario enviado con éxito",
             formulario,
         });
-        } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: "Ocurrió un error al enviar el formulario"+error });
-        }
-};
-
-export const cambiarEstadoFormulario = async (req, res) => {
-    try {
-        const { id_formulario, nuevo_estado } = req.params;  // Obtener los parámetros de la URL
-
-        // Validar entrada
-        if (!id_formulario || nuevo_estado === undefined) {
-            return res.status(400).json({
-                error: "Faltan parámetros: 'id_formulario' y/o 'nuevo_estado'",
-            });
-        }
-
-        // Cambiar el estado en la base de datos
-        const formularioActualizado = await formularioModel.CambiarEstadoFormulario(
-            id_formulario,
-            nuevo_estado
-        );
-
-        res.status(200).json({
-            message: "Estado del formulario actualizado con éxito",
-            formulario: formularioActualizado,
-        });
     } catch (error) {
         console.error(error);
-        res.status(500).json({
-            error: "Ocurrió un error al cambiar el estado del formulario: " + error.message,
-        });
+        res.status(500).json({ error: "Ocurrió un error al enviar el formulario: " + error });
     }
+};
+
+
+export const cambiarEstadoFormulario = async (req, res) => {
+  try {
+    const { id_formulario, nuevo_estado } = req.params; // Obtener los parámetros de la URL
+
+    // Validar entrada
+    if (!id_formulario || nuevo_estado === undefined) {
+      return res.status(400).json({
+        error: "Faltan parámetros: 'id_formulario' y/o 'nuevo_estado'",
+      });
+    }
+
+    // Cambiar el estado en la base de datos
+    const formularioActualizado = await formularioModel.CambiarEstadoFormulario(
+      id_formulario,
+      nuevo_estado
+    );
+
+    res.status(200).json({
+      message: "Estado del formulario actualizado con éxito",
+      formulario: formularioActualizado,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error:
+        "Ocurrió un error al cambiar el estado del formulario: " +
+        error.message,
+    });
+  }
 };
 
 // Insertar un registro en formulario_estado
 export const insertarFormularioEstado = async (req, res) => {
-    try {
-        const { id_formulario, comentario } = req.body; // Obtener datos del cuerpo de la solicitud
+  try {
+    const { id_formulario, comentario } = req.body; // Obtener datos del cuerpo de la solicitud
 
-        // Validar entrada
-        if (!id_formulario || !comentario) {
-            return res.status(400).json({
-                error: "Faltan parámetros: 'id_formulario' y/o 'comentario'",
-            });
-        }
-
-        // Insertar el registro en la base de datos
-        const formularioEstado = await formularioModel.InsertarFormularioEstado({
-            id_formulario,
-            comentario,
-        });
-
-        res.status(201).json({
-            message: "Registro insertado en formulario_estado con éxito",
-            formularioEstado,
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({
-            error: "Ocurrió un error al insertar en formulario_estado: " + error.message,
-        });
+    // Validar entrada
+    if (!id_formulario || !comentario) {
+      return res.status(400).json({
+        error: "Faltan parámetros: 'id_formulario' y/o 'comentario'",
+      });
     }
+
+    // Insertar el registro en la base de datos
+    const formularioEstado = await formularioModel.InsertarFormularioEstado({
+      id_formulario,
+      comentario,
+    });
+
+    res.status(201).json({
+      message: "Registro insertado en formulario_estado con éxito",
+      formularioEstado,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error:
+        "Ocurrió un error al insertar en formulario_estado: " + error.message,
+    });
+  }
 };
 
 export const formularioController = {
-    enviarFormulario,
-    cambiarEstadoFormulario,
-    insertarFormularioEstado, // Exportamos la nueva función
+  enviarFormulario,
+  cambiarEstadoFormulario,
+  insertarFormularioEstado, // Exportamos la nueva función
 };

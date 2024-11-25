@@ -4,9 +4,12 @@ import solicitudRoutes from './routes/solicitud.routes.js';
 import cuentasRoutes from './routes/cuentas.routes.js';
 import formularioRouter from './routes/formulario.routes.js'
 import cors from 'cors'; 
+import bodyParser from 'body-parser';
 
 const app = express();
 
+
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());  
 app.use(express.json());  // Middleware para parsear JSON
 app.use(express.urlencoded({ extended: true }));  // Middleware para parsear datos de formularios
