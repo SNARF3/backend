@@ -77,7 +77,7 @@ const InsertarFormularioEstado = async ({ id_formulario, comentario }) => {
             ) VALUES ($1, $2, $3)
             RETURNING *;
         `;
-        const values = [id_formulario, 1, comentario]; // id_cuenta se fija en 1
+        const values = [id_formulario, 28, comentario]; // id_cuenta se fija en 1
         const result = await pool.query(query, values);
         return result.rows[0]; // Devuelve el registro insertado
     } catch (error) {

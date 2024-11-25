@@ -24,20 +24,26 @@ const crearUsuario = async ({correo, usuario, contrasenia, rol, id_persona, hab}
     const { rows } = await pool.query(query);
     return rows;
 };
-// Función para verificar las credenciales del usuario en el login
-const verificarCredenciales = async (usuario, contrasenia) => {
-    const query = {
-        text: `
-        SELECT rol FROM cuentas
-        WHERE usuario = $1 AND contrasenia = $2 AND hab = 1
-        `,
-        values: [usuario, contrasenia],
-    };
-    const { rows } = await pool.query(query);
 
-    // Si hay coincidencia, devuelve el rol; si no, devuelve null
-    return rows.length > 0 ? rows[0].rol : null;
+
+// Función para verificar las credenciales del usuario en el login
+const verificarCredenciales = async (id_cuenta) => {
+    try {
+        const query = {
+            text: `SELECT id_cuenta, contrasenia FROM cuentas WHERE id_cuenta = $1`,
+            values: [id_cuenta],
+        };
+
+        const { rows } = await pool.query(query);
+        console.log('Filas obtenidas:', rows);  // Imprime las filas obtenidas
+
+        return rows.length > 0 ? rows : [];
+    } catch (error) {
+        console.error('Error en la consulta de credenciales:', error);
+        return [];
+    }
 };
+
 
 //buscar por email
 
@@ -56,7 +62,7 @@ const buscarPorcorreo = async(correo) =>{
 const buscarPorUsuario = async (usuario) => {
     const query = {
         text: `
-        select cu.id_cuenta, cu.contrasenia ,per.nombres, per.apellido_paterno, per.apellido_materno, per.ci, cu.correo, cu.rol
+        select cu.id_cuenta, cu.usuario, cu.contrasenia ,per.nombres, per.apellido_paterno, per.apellido_materno, per.ci, cu.correo, cu.rol
         from cuentas cu, persona per
         where cu.id_persona = per.id_persona
         and cu.usuario=$1
@@ -87,6 +93,36 @@ const obtenerCuentasDocentesYEstudiantes = async () => {
     return rows;
 };
 
+
+const verificarIdYContrasenia = async (id_usuario, contrasenia) => {
+    const query = {
+        text: `
+        SELECT 1
+        FROM cuentas
+        WHERE id_cuenta = $1 AND contrasenia = $2 AND hab = 1
+        `,
+        values: [id_usuario, contrasenia],
+    };
+    const { rows } = await pool.query(query);
+
+    // Devuelve true si existe al menos un resultado, false en caso contrario
+    return rows.length > 0;
+};
+
+async function actualizarContrasenia(id_cuenta, nuevaContraseniaHash) {
+    const sql = `UPDATE cuentas SET contrasenia = ? WHERE id_cuenta = ?`;
+    const values = [nuevaContraseniaHash, id_cuenta];
+
+    // Ejecutar la consulta y devolver el resultado
+    try {
+        const [results] = await connection.promise().query(sql, values);
+        return results;  // Retorna el resultado de la consulta
+    } catch (error) {
+        console.error('Error al actualizar la contraseña:', error);
+        throw error;  // Lanza el error si algo sale mal
+    }
+}
+
 export const cuentasModel = {
     crearCuenta,
     verificarCredenciales,
@@ -94,4 +130,6 @@ export const cuentasModel = {
     crearUsuario,
     buscarPorUsuario,
     obtenerCuentasDocentesYEstudiantes, // Nueva función añadida
+    verificarIdYContrasenia,
+    actualizarContrasenia,
 };
