@@ -194,6 +194,7 @@ const cambiarContrasenia = async (req, res) => {
             });
         }
 
+
         // Generar el hash para la nueva contraseña
         const salt = await bcryptjs.genSalt(10);
         const nuevaContraseniaHash = await bcryptjs.hash(nuevaContrasenia, salt);
@@ -201,15 +202,17 @@ const cambiarContrasenia = async (req, res) => {
         // Actualizar la contraseña en la base de datos
         const resultado = await cuentasModel.actualizarContrasenia(id_cuenta, nuevaContraseniaHash);
 
-        if (resultado.affectedRows > 0) {
+        // Verificar el resultado de la actualización
+        if (resultado.success && resultado.affectedRows > 0) {
             return res.status(200).json({
                 ok: true,
                 msg: 'Contraseña actualizada exitosamente',
             });
         } else {
+            console.log(`Filas afectadas: ${resultado.affectedRows}`);
             return res.status(500).json({
                 ok: false,
-                msg: 'No se pudo actualizar la contraseña',
+                msg: 'No se pudo actualizar la contraseña o no se encontró el usuario',
             });
         }
     } catch (error) {
@@ -221,7 +224,6 @@ const cambiarContrasenia = async (req, res) => {
         });
     }
 };
-
 
 
 
