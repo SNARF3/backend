@@ -168,9 +168,8 @@ export const insertarFormularioEstado = async (req, res) => {
   }
 };
 
-export const solicitudController = {
-    solicitudesPendientes,
-    solicitudesPendId,
-    solicitudesPorEstado, // Nueva función añadida
-    revisionesId,
-};
+export const formularioController = {
+    enviarFormulario,
+    cambiarEstadoFormulario,
+    insertarFormularioEstado, // Exportamos la nueva funci
+  };
