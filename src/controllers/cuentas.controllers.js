@@ -103,6 +103,7 @@ const login = async (req, res) => {
                 nroDocumento: nroDocumento,
                 correo: correo,
                 rol: rol,  // Se incluye el rol en el objeto del usuario
+                usuario: usuario,
             };
 
             console.log('Usuario generado para el token:', usuarioGen);
@@ -148,6 +149,82 @@ const obtenerDocentesYEstudiantes = async (req, res) => {
 
 
 
+const verificarCredenciales = async (req, res) => {
+    try {
+        const { id_cuenta, contrasenia } = req.body;
+
+        // Llamar al modelo para buscar al usuario por ID
+        const usuario = await cuentasModel.verificarCredenciales(id_cuenta);
+
+        console.log('Resultado de la consulta:', usuario);  // Imprime el resultado para depuración
+
+        // Verificar si el usuario existe
+        if (!usuario || usuario.length === 0) {
+            return res.status(404).json({ mensaje: 'Usuario no encontrado' });
+        }
+
+        // Asegúrate de acceder correctamente a la primera fila del resultado
+        const { contrasenia: contraseniaHash } = usuario[0];
+
+        // Comparar la contraseña ingresada con la almacenada
+        const esValida = await bcryptjs.compare(contrasenia, contraseniaHash);
+
+        if (esValida) {
+            return res.status(200).json({ mensaje: 'Credenciales válidas' });
+        } else {
+            return res.status(401).json({ mensaje: 'Contraseña incorrecta' });
+        }
+    } catch (error) {
+        console.error('Error al verificar credenciales:', error);
+        return res.status(500).json({ mensaje: 'Error en el servidor', error: error.message });
+    }
+};
+
+
+
+const cambiarContrasenia = async (req, res) => {
+    try {
+        const { id_cuenta, nuevaContrasenia } = req.body;
+
+        // Validar que todos los campos estén presentes
+        if (!id_cuenta || !nuevaContrasenia) {
+            return res.status(400).json({
+                ok: false,
+                msg: 'Todos los campos son obligatorios',
+            });
+        }
+
+        // Generar el hash para la nueva contraseña
+        const salt = await bcryptjs.genSalt(10);
+        const nuevaContraseniaHash = await bcryptjs.hash(nuevaContrasenia, salt);
+
+        // Actualizar la contraseña en la base de datos
+        const resultado = await cuentasModel.actualizarContrasenia(id_cuenta, nuevaContraseniaHash);
+
+        if (resultado.affectedRows > 0) {
+            return res.status(200).json({
+                ok: true,
+                msg: 'Contraseña actualizada exitosamente',
+            });
+        } else {
+            return res.status(500).json({
+                ok: false,
+                msg: 'No se pudo actualizar la contraseña',
+            });
+        }
+    } catch (error) {
+        console.error('Error al cambiar la contraseña:', error);
+        return res.status(500).json({
+            ok: false,
+            msg: 'Error en el servidor al cambiar la contraseña',
+            error: error.message
+        });
+    }
+};
+
+
+
+
 // Funciones de generación de usuario y contraseña
 function genPassword(ci, nombres) {
     return ci + nombres;
@@ -161,4 +238,6 @@ export const cuentasController = {
     Registrar,
     login,
     obtenerDocentesYEstudiantes,
+    verificarCredenciales,
+    cambiarContrasenia,
 };
