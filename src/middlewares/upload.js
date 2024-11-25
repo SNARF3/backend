@@ -1,50 +1,79 @@
-import path from "path";
-import fs from "fs";
-import { fileURLToPath } from "url";
-import multer from "multer";
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+import { google } from 'googleapis';
+import multer from 'multer';
+import { Readable } from 'stream';
+import fs from 'fs';
+import path from 'path';
 
-// Obtener el directorio actual
+// Obtener el directorio actual del archivo (equivalente a __dirname)
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __dirname = dirname(__filename);
 
-// Configuración de almacenamiento con Multer
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    // Determinar la carpeta según el campo del archivo
-    let folder = "otros"; // Carpeta predeterminada
-    if (file.fieldname === "proyectoTrabajo") {
-      folder = "cartas";
-    } else if (file.fieldname === "detallePropuesta") {
-      folder = "propuestas";
-    }
+// Configuración para multer (en memoria)
+const storage = multer.memoryStorage(); // Almacena los archivos en la memoria
+const upload = multer({ storage: storage }); // Configuración de multer
 
-    // Ruta absoluta al destino
-    const destinationPath = path.join(__dirname, "../../pdf", folder);
+// Función para convertir un buffer a un stream
+const bufferToStream = (buffer) => {
+  const stream = new Readable();
+  stream.push(buffer);
+  stream.push(null); // Indica el final del stream
+  return stream;
+};
 
-    // Verificar si la carpeta existe; si no, crearla
-    fs.mkdirSync(destinationPath, { recursive: true });
+// Ruta de las credenciales
+const credentialsPath = path.join(__dirname, '../../config/google-drive-credentials.json');
+const credentials = JSON.parse(fs.readFileSync(credentialsPath, 'utf-8'));
 
-    // Configurar el destino
-    cb(null, destinationPath);
-  },
-  filename: (req, file, cb) => {
-    // Generar un nombre único para el archivo
-    const uniqueName = `${file.originalname}`;
-    cb(null, uniqueName);
-  },
+const auth = new google.auth.GoogleAuth({
+  credentials: credentials,
+  scopes: ['https://www.googleapis.com/auth/drive']
 });
 
-// Filtro para aceptar solo archivos PDF
-const fileFilter = (req, file, cb) => {
-  if (file.mimetype === "application/pdf") {
-    cb(null, true); // Acepta el archivo
-  } else {
-    cb(new Error("Solo se permiten archivos PDF"), false); // Rechaza otros tipos de archivos
+const drive = google.drive({ version: 'v3', auth });
+
+const cartasFolderId = '1Hj3H5jOWbASKB1ai9FDaiLJf-pW3Z2gk';
+const propuestasFolderId = '1P_wQDR7TiCHC6yeF_YU4nHY6rHxvH6ub';
+
+// Función para subir archivo a Google Drive
+const uploadToGoogleDrive = async (fileBuffer, fileName, folderId) => {
+  try {
+    const fileMetadata = {
+      name: fileName,
+      parents: [folderId]
+    };
+
+    // Convertir el buffer a un stream
+    const fileStream = bufferToStream(fileBuffer);
+
+    const media = {
+      mimeType: 'application/pdf', // O el tipo adecuado dependiendo del archivo
+      body: fileStream
+    };
+
+    const response = await drive.files.create({
+      resource: fileMetadata,
+      media: media,
+      fields: 'id, webViewLink'
+    });
+
+    // Retorna el link de la vista previa en Google Drive
+    if (response.data.webViewLink) {
+      return response.data.webViewLink;
+    } else {
+      throw new Error('No se pudo obtener el enlace del archivo');
+    }
+  } catch (error) {
+    console.error('Error al subir el archivo a Google Drive:', error);
+    throw error;
   }
 };
 
-// Middleware de Multer
-export const upload = multer({
-  storage, // Configuración de almacenamiento
-  fileFilter, // Filtro para validar el tipo de archivo
-});
+// Middleware para manejar la carga de archivos con multer
+const fileUpload = upload.fields([
+  { name: 'proyectoTrabajo', maxCount: 1 },
+  { name: 'detallePropuesta', maxCount: 1 }
+]);
+
+export { fileUpload, uploadToGoogleDrive, cartasFolderId, propuestasFolderId };
