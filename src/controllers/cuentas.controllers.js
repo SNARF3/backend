@@ -31,7 +31,7 @@ const Registrar = async (req, res) => {
                 const newPerson = await cuentasModel.crearCuenta({ nombres, apellidoPat, apellidoMat, correo, ci });
                 const id_persona = newPerson[0].id_persona; 
                 const salt = await bcryptjs.genSalt(10);
-                const contrasenia = await bcryptjs.hash(genPassword(ci, nombres), salt);
+                const contrasenia = await bcryptjs.hash(genPassword(ci, apellidoPat), salt);
                 const usuario = genUser(ci, apellidoPat);
                 const newAccount = await cuentasModel.crearUsuario({
                     correo,
@@ -47,7 +47,7 @@ const Registrar = async (req, res) => {
                     await sendEmail({
                         to: correo,
                         subject: 'Cuenta registrada en UCB',
-                        text: `Hola ${nombres} ${apellidoPat},\n\nTu cuenta ha sido registrada exitosamente en el sistema de la UCB.\n\nTu usuario es: ${usuario}\nTu contraseña es: ${genPassword(ci, nombres)}\n\nPor favor, guarda esta información en un lugar seguro.\n\nSaludos,\nEquipo de UCB`
+                        text: `Hola ${nombres} ${apellidoPat},\n\nTu cuenta ha sido registrada exitosamente en el sistema de la UCB.\n\nTu usuario es: ${usuario}\nTu contraseña es: ${contrasenia}\n\nPor favor, guarda esta información en un lugar seguro.\n\nSaludos,\nEquipo de UCB`
                     });
                     console.log('Correo enviado correctamente');
                 } catch (emailError) {
@@ -228,8 +228,8 @@ const cambiarContrasenia = async (req, res) => {
 
 
 // Funciones de generación de usuario y contraseña
-function genPassword(ci, nombres) {
-    return ci + nombres;
+function genPassword(ci, apellidoPat) {
+    return ci + apellidoPat;
 }
 
 function genUser(ci, apellidoPat) {

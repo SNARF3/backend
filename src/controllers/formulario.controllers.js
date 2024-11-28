@@ -168,8 +168,33 @@ export const insertarFormularioEstado = async (req, res) => {
   }
 };
 
+export const DejarObservacion = async(req, res)=> {
+  try{
+    const {id_formulario, id_cuenta, comentario}  = req.body;
+    if (!id_formulario || !comentario || !id_cuenta) {
+      return res.status(400).json({
+        error: "Faltan parámetros",
+      });
+    }else{
+      const resultado = await formularioModel.DejarObservacion({id_cuenta, id_formulario, comentario});
+      if(resultado){
+        return res.status(201).json({
+          message: "Observacion enviada con exito"
+        })
+      }else{
+        return res.status(400).json({
+          message: "No se envio la observacion porque la propuesta no ha sido observada ni rechazada"
+        })
+      }
+    }
+  }catch(error){
+    console.log("algo pasho en el controlador de dejar observacion : "+ error)
+  }
+};
+
 export const formularioController = {
   enviarFormulario,
   cambiarEstadoFormulario,
   insertarFormularioEstado, // Exportamos la nueva función
+  DejarObservacion,
 };
