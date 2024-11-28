@@ -44,6 +44,7 @@ const solicitudesPorEstado = async () => {
         LEFT JOIN formulario_estado 
           ON formulario.id_formulario = formulario_estado.id_formulario
         WHERE formulario.estado IN (4, 5, 6)
+        and formulario_estado.comentario<>'0'
         GROUP BY 
           formulario.ci, 
           formulario.nombres, 
@@ -62,13 +63,12 @@ const solicitudesPorEstado = async () => {
 
   const revisionId = async (id_cuenta) => {
     const query = `
-        SELECT 
-            f.id_formulario, nombre_propuesta, f.categoria, f.estado, f.fecha, fe.comentario, fe.id_formulario
-        FROM 
-            formulario f, formulario_estado fe 
-        WHERE f.estado IN (4, 5, 6)
-            and f.id_formulario = fe.id_formulario
-            and f.id_cuenta = $1
+        SELECT f.id_formulario, f.nombre_propuesta, f.categoria, f.estado, f.fecha, fe.comentario
+        FROM formulario f, formulario_estado fe
+        WHERE f.estado>0
+        and f.id_formulario=fe.id_formulario
+        and fe.comentario<>'0'
+        and f.id_cuenta = $1
     `;
     const { rows } = await pool.query(query, [id_cuenta]);
     return rows;
