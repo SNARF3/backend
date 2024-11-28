@@ -55,9 +55,24 @@ const revisionesId = async (req, res) => {
     }
 };
 
+const comentsForms = async (req, res) => {
+    try {
+        const { id_formulario } = req.params; // ID del formulario recibido
+        const rows = await solicitudModel.comentariosFormularios(id_formulario); // Llama al modelo
+        return res.send(rows); // Responde con los datos obtenidos
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            ok: false,
+            msg: 'Error al obtener los datos del formulario: ' + error,
+        });
+    }
+};
+
 export const solicitudController = {
     solicitudesPendientes,
     solicitudesPendId,
     solicitudesPorEstado, // Nueva función añadida
     revisionesId,
+    comentsForms
 };

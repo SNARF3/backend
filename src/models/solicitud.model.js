@@ -63,20 +63,34 @@ const solicitudesPorEstado = async () => {
 
   const revisionId = async (id_cuenta) => {
     const query = `
-        SELECT f.id_formulario, f.nombre_propuesta, f.categoria, f.estado, f.fecha, fe.comentario
-        FROM formulario f, formulario_estado fe
-        WHERE f.estado>0
-        and f.id_formulario=fe.id_formulario
-        and fe.comentario<>'0'
+        SELECT f.id_formulario, f.nombre_propuesta, f.categoria, f.estado, f.fecha
+        FROM formulario f
+        WHERE f.estado > 0
         and f.id_cuenta = $1
     `;
     const { rows } = await pool.query(query, [id_cuenta]);
     return rows;
 };
 
+const comentariosFormularios = async (id_formulario) => {
+  const query = `
+      SELECT fe.id_formulario, fe.id_cuenta, fe.comentario, pe.nombres, pe.apellido_paterno, pe.apellido_materno, pe.correo, cu.id_cuenta
+      FROM formulario_estado fe, cuentas cu, persona pe
+      WHERE fe.id_formulario = $1
+      and fe.id_cuenta = cu.id_cuenta
+      and pe.id_persona = cu.id_persona
+  `;
+  const { rows } = await pool.query(query, [id_formulario]);
+  return rows;
+};
+
+
+
+
   export const solicitudModel = {
     solicitudesPendientes,
     solicitudPendId,
     solicitudesPorEstado, // Nueva función añadida
     revisionId,
+    comentariosFormularios,
   };

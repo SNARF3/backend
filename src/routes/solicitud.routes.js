@@ -14,4 +14,6 @@ router.get("/formRevisados", solicitudController.solicitudesPorEstado)
 
 router.get("/revisionId/:id_cuenta", solicitudController.revisionesId)
 
+router.get("/comentsId/:id_formulario", solicitudController.comentsForms)
+
 export default router;

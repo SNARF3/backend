@@ -25,7 +25,6 @@ router.post(
 //Tabla de solicitudes Pendientes:
 router.patch("/cambiarEstado/:id_formulario/:nuevo_estado", formularioController.cambiarEstadoFormulario);
 
-router.post('/registrarRevision', formularioController.insertarFormularioEstado)
 router.post('/RegistrarObservacion', formularioController.DejarObservacion)
 
 export default router;
