@@ -47,7 +47,7 @@ const Registrar = async (req, res) => {
                     await sendEmail({
                         to: correo,
                         subject: 'Cuenta registrada en UCB',
-                        text: `Hola ${nombres} ${apellidoPat},\n\nTu cuenta ha sido registrada exitosamente en el sistema de la UCB.\n\nTu usuario es: ${usuario}\nTu contraseña es: ${contrasenia}\n\nPor favor, guarda esta información en un lugar seguro.\n\nSaludos,\nEquipo de UCB`
+                        text: `Hola ${nombres} ${apellidoPat},\n\nTu cuenta ha sido registrada exitosamente en el sistema de la UCB.\n\nTu usuario es: ${usuario}\nTu contraseña es: ${genPassword(ci, apellidoPat)}\n\nPor favor, guarda esta información en un lugar seguro.\n\nSaludos,\nEquipo de UCB`
                     });
                     console.log('Correo enviado correctamente');
                 } catch (emailError) {
