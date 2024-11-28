@@ -5,6 +5,7 @@ import cuentasRoutes from './routes/cuentas.routes.js';
 import formularioRouter from './routes/formulario.routes.js'
 import cors from 'cors'; 
 import bodyParser from 'body-parser';
+import proyectosRouter from './routes/proyectos.routes.js'
 
 const app = express();
 
@@ -16,6 +17,7 @@ app.use(express.urlencoded({ extended: true }));  // Middleware para parsear dat
 app.use(solicitudRoutes);
 app.use(cuentasRoutes);
 app.use(formularioRouter);
+app.use(proyectosRouter);
 
 // Iniciar el servidor
 app.listen(port)
