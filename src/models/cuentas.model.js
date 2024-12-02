@@ -50,7 +50,7 @@ const verificarCredenciales = async (id_cuenta) => {
 const buscarPorcorreo = async(correo) =>{
     const query = {
         text: `
-        select * from persona
+        select * from cuentas
         where correo=$1
         `,
         values: [correo]
