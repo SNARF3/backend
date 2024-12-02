@@ -30,9 +30,14 @@ export const enviarFormulario = async (req, res) => {
             const fileLink = await uploadToGoogleDrive(file.buffer, file.originalname, propuestasFolderId);  // Usar el ID de la carpeta correspondiente
             detallePropuesta = fileLink;  // Guardar el link del archivo subido
         }
-        
-        // Guardar los datos del formulario, incluyendo los enlaces de los archivos subidos
-        const formulario = await formularioModel.EnviarFormularioPG({
+        if(!proyectoTrabajo || !detallePropuesta){
+          return res.send({
+            ok: false,
+            message: 'debe ingresar todos los campos'
+          })
+        }else{
+           // Guardar los datos del formulario, incluyendo los enlaces de los archivos subidos
+          const formulario = await formularioModel.EnviarFormularioPG({
             nroDocumento,
             nombres,
             apellidoPaterno,
@@ -43,12 +48,13 @@ export const enviarFormulario = async (req, res) => {
             titulo_propuesta, 
             detallePropuesta, 
             id_cuenta,
-        });
+          });
     
-        res.status(201).json({
-            message: "Formulario enviado con éxito",
-            formulario,
-        });
+          res.status(201).json({
+              message: "Formulario enviado con éxito",
+              formulario,
+          });
+        }
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: "Ocurrió un error al enviar el formulario: " + error });

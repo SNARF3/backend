@@ -22,10 +22,13 @@ export const InsertarActividad = async (req, res) => {
                 }else{
                     const Respuesta = await CalendarioModel.InsertarActividad(fecha, detalle);
                     const docentes = [
-                        'ofigueroa@ucb.edu.bo',
-                        'myanez@ucb.edu.bo',
-                        'lperedo.q@ucb.edu.bo',
-                        'aavila@ucb.edu.bo'
+                        //'ofigueroa@ucb.edu.bo',
+                        //'myanez@ucb.edu.bo',
+                        //'lperedo.q@ucb.edu.bo',
+                        //'aavila@ucb.edu.bo'
+                        'marvin.mollo@ucb.edu.bo',
+                        'alan.flores.c@ucb.edu.bo',
+                        'christian.coronel@ucb.edu.bo',
                     ];
                     try {
                         await sendEmail({
