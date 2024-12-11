@@ -28,6 +28,8 @@ const solicitudesPendId = async (req, res) => {
     }
 };
 
+
+
 const solicitudesPorEstado = async (req, res) => {
     try {
         const rows = await solicitudModel.solicitudesPorEstado();

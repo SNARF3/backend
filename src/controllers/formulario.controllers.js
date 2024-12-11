@@ -108,10 +108,6 @@ export const enviarTrabajoDirigido = async (req, res) => {
         });
     }
 };
-
-
-
-
 export const cambiarEstadoFormulario = async (req, res) => {
   try {
     const { id_formulario, nuevo_estado } = req.params; // Obtener los parámetros de la URL
@@ -172,6 +168,5 @@ export const DejarObservacion = async(req, res)=> {
 export const formularioController = {
   enviarFormulario,
   cambiarEstadoFormulario,
-  
   DejarObservacion,
 };

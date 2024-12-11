@@ -1,19 +1,17 @@
 import { Router } from 'express';
-import { cuentasModel} from '../models/cuentas.model.js';
 import { cuentasController } from '../controllers/cuentas.controllers.js';
+import { TokenVerify } from '../middlewares/verifyToken.js';
 
 const router = Router();
 
 
-router.post('/login', cuentasController.login);
+router.post('/login' ,cuentasController.login);
 
-router.post('/Registrar-Usuario', cuentasController.Registrar);
+router.post('/Registrar-Usuario', TokenVerify.TokenMiddlewareAdmin, cuentasController.Registrar);
 
 router.get("/obtUsuarios", cuentasController.obtenerDocentesYEstudiantes);
 
 router.patch('/cambiarContrasenia', cuentasController.cambiarContrasenia);
-
-router.post('/verificarContrasenia', cuentasController.verificarCredenciales);
 
 
 export default router;

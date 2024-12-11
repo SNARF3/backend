@@ -13,7 +13,6 @@ import {generarToken} from "../middlewares/tokens.js"
 const Registrar = async (req, res) => {
     try {
         const { nombres, apellidoPat, apellidoMat, correo, ci, rol } = req.body;
-
         const user = await cuentasModel.buscarPorcorreo(correo);
         const dominioUcb = /^[a-zA-Z0-9._%+-]+@ucb\.edu\.bo$/;
         const letras = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
@@ -111,7 +110,7 @@ const login = async (req, res) => {
             console.log(usuarioEncontrado)
             return res.status(200).json({
                 mensaje: 'Login exitoso',
-                token: token,
+                token: `Bearer ${token}`,
                 rol: rol, // Devolver el rol junto con el token
                 id_cuenta: id_cuenta,
             });
@@ -146,40 +145,6 @@ const obtenerDocentesYEstudiantes = async (req, res) => {
         });
     }
 };
-
-
-
-const verificarCredenciales = async (req, res) => {
-    try {
-        const { id_cuenta, contrasenia } = req.body;
-
-        // Llamar al modelo para buscar al usuario por ID
-        const usuario = await cuentasModel.verificarCredenciales(id_cuenta);
-
-        console.log('Resultado de la consulta:', usuario);  // Imprime el resultado para depuración
-
-        // Verificar si el usuario existe
-        if (!usuario || usuario.length === 0) {
-            return res.status(404).json({ mensaje: 'Usuario no encontrado' });
-        }
-
-        // Asegúrate de acceder correctamente a la primera fila del resultado
-        const { contrasenia: contraseniaHash } = usuario[0];
-
-        // Comparar la contraseña ingresada con la almacenada
-        const esValida = await bcryptjs.compare(contrasenia, contraseniaHash);
-
-        if (esValida) {
-            return res.status(200).json({ mensaje: 'Credenciales válidas' });
-        } else {
-            return res.status(401).json({ mensaje: 'Contraseña incorrecta' });
-        }
-    } catch (error) {
-        console.error('Error al verificar credenciales:', error);
-        return res.status(500).json({ mensaje: 'Error en el servidor', error: error.message });
-    }
-};
-
 
 
 const cambiarContrasenia = async (req, res) => {
@@ -240,6 +205,5 @@ export const cuentasController = {
     Registrar,
     login,
     obtenerDocentesYEstudiantes,
-    verificarCredenciales,
     cambiarContrasenia,
 };
