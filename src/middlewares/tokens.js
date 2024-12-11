@@ -7,20 +7,18 @@ dotenv.config();
 const JWT_SECRET = process.env.secretWord;
 
 // Middleware para verificar si el token es válido
-export const verificarToken = (req, res, next) => {
-    const token = req.header('Authorization')?.split(' ')[1];  // Extraer el token del encabezado 'Authorization'
-
+export const verificarToken = (token) => {
     if (!token) {
-        return res.status(403).json({ message: 'Acceso denegado. No hay token.' });
+        return false
+        //return res.status(403).json({ message: 'Acceso denegado. No hay token.' });
     }
-
     try {
-        const decoded = jwt.verify(token, JWT_SECRET);
-        req.usuario = decoded;  // Guardamos los datos decodificados del usuario en la solicitud
-        next();
+        const result = jwt.verify(token, JWT_SECRET);
     } catch (error) {
-        res.status(401).json({ message: 'Token no válido.' });
+        return false;
+        //res.status(401).json({ message: 'Token no válido.' });
     }
+    return true;
 };
 
 // Middleware para verificar el rol del usuario
@@ -68,7 +66,8 @@ export const decodedToken = async (token) => {
                 apellidoPaterno: datosBasicos.apellidoPaterno,
                 apellidoMaterno: datosBasicos.apellidoMaterno,
                 correo: datosBasicos.correo,
-                id_cuenta: datosBasicos.id_cuenta
+                id_cuenta: datosBasicos.id_cuenta,
+                rol: datosBasicos.rol,
             };
             resolve(data);
             console.log(data) // Resolver la promesa con los datos decodificados
