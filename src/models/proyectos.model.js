@@ -1,14 +1,16 @@
-
-import {pool} from "../db.js"
-const BuscarProyecto = async (categoria, titulo) => {
+import { pool } from "../db.js"
+const BuscarProyecto = async(anio, categoria, titulo) => {
     try {
         const query = {
             text: `
-            SELECT titulo, categoria, fecha_defensa
+            SELECT titulo, categoria, date_part('year', fecha_defensa)
             FROM proyectos
-            WHERE categoria ILIKE $1 OR titulo ILIKE $2;
+            WHERE 
+            (date_part('year', fecha_defensa) = $1 OR fecha_defensa IS NULL) 
+            AND (categoria ILIKE $2 OR categoria IS NULL)
+            AND (titulo ILIKE $3 OR titulo IS NULL);
             `,
-            values: [categoria, `%${titulo}%`],
+            values: [anio, `%${categoria}%`, `%${titulo}%`],
         };
         const { rows } = await pool.query(query);
         return rows;
