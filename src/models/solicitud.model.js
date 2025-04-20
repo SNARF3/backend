@@ -61,13 +61,14 @@ const solicitudesPorEstado = async () => {
     return rows;
   };
 
-  const revisionId = async (id_cuenta) => {
+  const revisionId = async (id_cuenta, nombre_rubro, tipo_Actividades) => {
     const query = `
         SELECT f.id_formulario, f.nombre_propuesta, f.categoria, f.estado, f.fecha
         FROM formulario f
         WHERE f.estado > 0
         and f.id_cuenta = $1
-    `;
+    `
+    ;
     const { rows } = await pool.query(query, [id_cuenta]);
     return rows;
 };

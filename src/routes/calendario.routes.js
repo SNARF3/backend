@@ -6,8 +6,8 @@ import { TokenVerify } from "../middlewares/verifyToken.js";
 const router = Router();
 
 
-router.post('/RegistrarFecha', TokenVerify.TokenMiddlewareAdmin, calendarioController.InsertarActividad);
-router.get('/VerDatosFecha/:fecha', calendarioController.VerActividad);
+router.post('/RegistrarFecha', calendarioController.InsertarActividad);
+router.get('/VerDatosFecha/:nombre_rubro', calendarioController.VerActividad);
 router.delete('/EliminarFecha/:fecha', calendarioController.EliminarActividad);
 
 export default router;

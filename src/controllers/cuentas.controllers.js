@@ -53,7 +53,7 @@ const Registrar = async (req, res) => {
                     console.error('Error al enviar el correo:', emailError);
                 }
 
-                return res.status(201).json({ ok: true, msg: "Usuario registrado exitosamente", usuario: newAccount[0].id_cuenta });
+                return res.status(201).json({ ok: true, msg: "Usuario registrado exitosamente"/*, usuario: newAccount[0].id_cuenta */});
             } catch (error) {
                 return res.status(409).json({ ok: false, msg: "Algo pasó, no se pudo registrar: " + error });
             }
