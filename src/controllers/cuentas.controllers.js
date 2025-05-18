@@ -25,6 +25,8 @@ const Registrar = async (req, res) => {
             return res.status(409).json({ ok: false, msg: "El correo debe pertenecer al dominio @ucb.edu.bo" });
         } else if (ci.length < 4) {
             return res.status(409).json({ ok: false, msg: "El Carnet de identidad ingresado es incorrecto" });
+        } else if (![1, 2, 3].includes(Number(rol))) {
+            return res.status(409).json({ ok: false, msg: "Rol inválido. Debe ser 0 (Admin), 1 (Docente) o 2 (Estudiante)" });
         } else {
             try {
                 const newPerson = await cuentasModel.crearCuenta({ nombres, apellidoPat, apellidoMat, correo, ci });
@@ -33,12 +35,12 @@ const Registrar = async (req, res) => {
                 const contrasenia = await bcryptjs.hash(genPassword(ci, apellidoPat), salt);
                 const usuario = genUser(ci, apellidoPat);
                 const newAccount = await cuentasModel.crearUsuario({
-                    correo,
                     usuario,
                     contrasenia,
                     rol,
+                    foto_perfil:  "",
                     id_persona,
-                    hab: 2 
+                    hab: true 
                 });
 
                 // Manejo del envio del correo con los datos necesarios
@@ -53,7 +55,7 @@ const Registrar = async (req, res) => {
                     console.error('Error al enviar el correo:', emailError);
                 }
 
-                return res.status(201).json({ ok: true, msg: "Usuario registrado exitosamente", usuario: newAccount[0].id_cuenta });
+                return res.status(201).json({ ok: true, msg: "Usuario registrado exitosamente"/*, usuario: newAccount[0].id_cuenta */});
             } catch (error) {
                 return res.status(409).json({ ok: false, msg: "Algo pasó, no se pudo registrar: " + error });
             }
@@ -75,54 +77,64 @@ const login = async (req, res) => {
             return res.status(400).json({ mensaje: 'Usuario y contraseña son obligatorios' });
         }
 
-        // Verificar si el usuario existe en la base de datos y obtener el rol
+        console.log(usuario, contraseniaUser);
+
+        // Buscar usuario
         const usuarioEncontradoArray = await cuentasModel.buscarPorUsuario(usuario);
-        
+
         if (!usuarioEncontradoArray || usuarioEncontradoArray.length === 0) {
             return res.status(401).json({ mensaje: 'Usuario no encontrado' });
         }
 
-        const usuarioEncontrado = usuarioEncontradoArray[0];  // Accedemos al primer objeto del arreglo
+        const usuarioEncontrado = usuarioEncontradoArray[0];
 
-        const { id_cuenta, contrasenia, nombres, apellido_paterno, apellido_materno, ci, correo, rol } = usuarioEncontrado;
+        const {
+            id_cuenta,
+            contrasenia,
+            nombres,
+            apellido_paterno,
+            apellido_materno,
+            ci,
+            id_rol,
+            correo // Asegúrate que esta columna existe en tu SELECT
+        } = usuarioEncontrado;
 
-        // Comparación de la contraseña (si está hasheada)
+        // Comparar contraseñas (aquí debes usar bcrypt si están hasheadas)
         const contraseniaValida = await bcryptjs.compare(contraseniaUser, contrasenia);
-        const nroDocumento = ci;
-        const apellidoPaterno = apellido_paterno;
-        const apellidoMaterno = apellido_materno;
-        
-        if (contraseniaValida) {
-            // Si las credenciales son válidas, generar el token
-            const usuarioGen = {
-                id_cuenta: id_cuenta,
-                nombres: nombres,
-                apellidoPaterno: apellidoPaterno,
-                apellidoMaterno: apellidoMaterno,
-                nroDocumento: nroDocumento,
-                correo: correo,
-                rol: rol,  // Se incluye el rol en el objeto del usuario
-                usuario: usuario,
-            };
+        //const contraseniaValida = true; // Solo para pruebas, ¡no lo dejes así en producción!
 
-            console.log('Usuario generado para el token:', usuarioGen);
-            const token = generarToken(usuarioGen);
-            console.log(usuarioEncontrado)
-            return res.status(200).json({
-                mensaje: 'Login exitoso',
-                token: `Bearer ${token}`,
-                rol: rol, // Devolver el rol junto con el token
-                id_cuenta: id_cuenta,
-            });
-        } else {
+        if (!contraseniaValida) {
             return res.status(401).json({ mensaje: 'Credenciales incorrectas' });
         }
 
+        const usuarioGen = {
+            id_cuenta,
+            nombres,
+            apellidoPaterno: apellido_paterno,
+            apellidoMaterno: apellido_materno,
+            nroDocumento: ci,
+            correo: correo || "", // Fallback si viene undefined
+            rol: id_rol,
+            usuario
+        };
+
+        console.log('Usuario generado para el token:', usuarioGen);
+
+        const token = generarToken(usuarioGen);
+
+        return res.status(200).json({
+            mensaje: 'Login exitoso',
+            token: `Bearer ${token}`,
+            rol: id_rol,
+            id_cuenta
+        });
+
     } catch (error) {
         console.error('Error al loggear:', error);
-        res.status(500).json({ error: 'Error al verificar credenciales' });
+        return res.status(500).json({ error: 'Error al verificar credenciales' });
     }
 };
+
 
 const obtenerDocentesYEstudiantes = async (req, res) => {
     try {
