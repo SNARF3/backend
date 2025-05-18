@@ -1,19 +1,35 @@
 
 import {pool} from "../db.js"
 
-const solicitudesPendientes = async(estado) =>{
-    const query = {
-        text: `
-        select formulario.id_formulario, formulario.ci, formulario.nombres, formulario.apellido_paterno, formulario.apellido_materno, formulario.nombre_propuesta, formulario.fecha 
-        from formulario
-        where formulario.estado=$1
-        group by formulario.id_formulario, formulario.ci, formulario.nombres, formulario.apellido_paterno, formulario.apellido_materno, formulario.nombre_propuesta, formulario.fecha
-        `,
-        values: [estado],
+const solicitudesPendientes = async (estado) => {
+  const query = {
+      text: `
+      SELECT 
+          cp.id_formulario, 
+          pe.ci, 
+          pe.nombres, 
+          pe.apellido_paterno, 
+          pe.apellido_materno, 
+          cp.nombre_propuesta, 
+          cp.fecha 
+      FROM carta_propuesta cp
+      JOIN cuentas cu ON cp.id_cuenta = cu.id_cuenta
+      JOIN persona pe ON cu.id_persona = pe.id_persona
+      WHERE cp.estado = $1
+      GROUP BY 
+          cp.id_formulario, 
+          pe.ci, 
+          pe.nombres, 
+          pe.apellido_paterno, 
+          pe.apellido_materno, 
+          cp.nombre_propuesta, 
+          cp.fecha
+      `,
+      values: [estado],
+  };
+  const { rows } = await pool.query(query);
+  return rows;
 };
-    const { rows }= await pool.query(query)
-    return rows;
-}
 
 const solicitudPendId = async(id_formulario) =>{
     const query = {
