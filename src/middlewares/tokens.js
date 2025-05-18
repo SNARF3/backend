@@ -38,8 +38,8 @@ export const generarToken = (usuario) => {
         apellidoMaterno: usuario.apellidoMaterno,
         nroDocumento: usuario.nroDocumento,
         correo: usuario.correo,
-        rol: usuario.rol, 
-        usuario: usuario.usuario, 
+        rol: usuario.rol,
+        usuario: usuario.usuario,
     };
 
     // Firmamos el token y lo devolvemos, con una duración de 1 hora
@@ -47,9 +47,18 @@ export const generarToken = (usuario) => {
 };
 
 export const decodedToken = async (token) => {
+
+    console.log(token);
+    console.log("SECRETO JWT CARGADO:", process.env.secretWord);
+
     if (!token) {
         console.log("No mandaron el token xd");
         return null;
+    }
+
+    // ⚠️ Limpiar prefijo "Bearer " si existe
+    if (token.startsWith("Bearer ")) {
+        token = token.split(" ")[1];
     }
 
     return new Promise((resolve, reject) => {

@@ -13,17 +13,27 @@ const crearCuenta = async ({ nombres, apellidoPat, apellidoMat, correo, ci }) =>
     return rows;
 };
 
-const crearUsuario = async ({correo, usuario, contrasenia, rol, id_persona, hab}) => {
-    const query = {
+const crearUsuario = async ({usuario, contrasenia, rol, foto_perfil, id_persona, hab}) => {
+    try {
+      const query = {
         text: `
-        INSERT INTO cuentas (correo, usuario, contrasenia, rol, id_persona, hab)
+        INSERT INTO cuentas (usuario, contrasenia, id_rol, foto_perfil, id_persona, activo)
         VALUES ($1, $2, $3, $4, $5, $6) RETURNING id_cuenta
         `,
-        values: [correo, usuario, contrasenia, rol, id_persona, hab],
-    };
-    const { rows } = await pool.query(query);
-    return rows;
-};
+        values: [usuario, contrasenia, rol, foto_perfil, id_persona, hab],
+      };
+      const { rows } = await pool.query(query);
+      return rows;
+    } catch (error) {
+      // Detectar violación de clave única
+      if (error.code === '23505') { // Código de error Postgres para UNIQUE VIOLATION
+        throw new Error('Usuario ya existe');
+      } else {
+        throw error; // Otro error, se lanza normalmente
+      }
+    }
+  };
+  
 
 
 // Función para verificar las credenciales del usuario en el login
@@ -47,31 +57,37 @@ const verificarCredenciales = async (id_cuenta) => {
 
 //buscar por email
 
-const buscarPorcorreo = async(correo) =>{
+const buscarPorcorreo = async (correo) => {
     const query = {
         text: `
-        select * from cuentas
-        where correo=$1
+            SELECT cu.*
+            FROM cuentas cu
+            JOIN persona p ON cu.id_persona = p.id_persona
+            WHERE p.correo = $1
         `,
         values: [correo]
-    }
-    const { rows }= await pool.query(query)
+    };
+    const { rows } = await pool.query(query);
     return rows[0];
-}
+};
+
 
 const buscarPorUsuario = async (usuario) => {
     const query = {
         text: `
-        select cu.id_cuenta, cu.usuario, cu.contrasenia ,per.nombres, per.apellido_paterno, per.apellido_materno, per.ci, cu.correo, cu.rol
-        from cuentas cu, persona per
-        where cu.id_persona = per.id_persona
-        and cu.usuario=$1
+        SELECT cu.id_cuenta, cu.usuario, cu.contrasenia,
+               per.nombres, per.apellido_paterno, per.apellido_materno,
+               per.ci, per.correo, cu.id_rol
+        FROM cuentas cu
+        JOIN persona per ON cu.id_persona = per.id_persona
+        WHERE cu.usuario = $1
         `,
         values: [usuario]
     };
     const { rows } = await pool.query(query);
     return rows;
 };
+
 
 const obtenerCuentasDocentesYEstudiantes = async () => {
     const query = {
@@ -81,17 +97,19 @@ const obtenerCuentasDocentesYEstudiantes = async () => {
             p.nombres, 
             p.apellido_paterno, 
             p.apellido_materno, 
-            c.correo, 
+            p.correo, 
             c.usuario, 
-            c.rol
-        FROM cuentas c, persona p
-        WHERE c.rol IN (2, 3) and p.id_persona = c.id_persona
+            c.id_rol
+        FROM cuentas c
+        JOIN persona p ON p.id_persona = c.id_persona
+        WHERE c.id_rol IN (2, 3)
         `,
         values: [],
     };
     const { rows } = await pool.query(query);
     return rows;
 };
+
 
 
 const verificarIdYContrasenia = async (id_usuario, contrasenia) => {
