@@ -2,25 +2,34 @@ import { cambiarEstadoFormulario } from "../controllers/formulario.controllers.j
 import { pool } from "../db.js";
 
 const EnviarFormularioPG = async ({
-    nroDocumento,
-    nombres,
-    apellidoPaterno,
-    apellidoMaterno,
-    correo,
+    id_cuenta,
     categoria,
     proyectoTrabajo,
     titulo_propuesta,
     detallePropuesta,
-    id_cuenta,
 }) => {
     try {
-        //procedimiento almacenado para que sea mas easy xd
         const query = `
-        select InsertarFormularioEst($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-    `;
-    const values = [nroDocumento ,nombres, apellidoPaterno, apellidoMaterno, correo, proyectoTrabajo, titulo_propuesta, detallePropuesta, categoria, id_cuenta];
-    const result = await pool.query(query, values);
-    return result.rows[0]; // Devuelve el registro insertado
+            INSERT INTO carta_propuesta (
+                id_cuenta,
+                carta,
+                nombre_propuesta,
+                detalle_propuesta,
+                estado,
+                fecha,
+                id_categoria
+            ) VALUES ($1, $2, $3, $4, 0, CURRENT_DATE, $5)
+            RETURNING id_formulario;
+        `;
+        const values = [
+            id_cuenta,
+            proyectoTrabajo,
+            titulo_propuesta,
+            detallePropuesta,
+            categoria
+        ];
+        const result = await pool.query(query, values);
+        return result.rows[0];
     } catch (error) {
         console.error("Error al insertar el formulario:", error);
         throw error;
