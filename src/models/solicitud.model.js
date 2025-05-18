@@ -1,9 +1,9 @@
 
-import {pool} from "../db.js"
+import { pool } from "../db.js"
 
 const solicitudesPendientes = async (estado) => {
   const query = {
-      text: `
+    text: `
       SELECT 
           cp.id_formulario, 
           pe.ci, 
@@ -25,69 +25,92 @@ const solicitudesPendientes = async (estado) => {
           cp.nombre_propuesta, 
           cp.fecha
       `,
-      values: [estado],
+    values: [estado],
   };
   const { rows } = await pool.query(query);
   return rows;
 };
 
-const solicitudPendId = async(id_formulario) =>{
-    const query = {
-        text: `
-        select formulario.ci, formulario.nombres, formulario.apellido_paterno, formulario.apellido_materno, formulario.carta, formulario.detalle_propuesta, formulario.nombre_propuesta
-        from formulario
-        where id_formulario=$1
-        `,
-        values: [id_formulario],
-    }
-    const { rows }= await pool.query(query)
-    return rows;
-}
+const solicitudPendId = async (id_formulario) => {
+  const query = {
+    text: `
+      SELECT 
+        p.ci,
+        p.nombres,
+        p.apellido_paterno,
+        p.apellido_materno,
+        cp.carta,
+        cp.detalle_propuesta,
+        cp.nombre_propuesta
+      FROM carta_propuesta cp
+      JOIN cuentas c ON cp.id_cuenta = c.id_cuenta
+      JOIN persona p ON c.id_persona = p.id_persona
+      WHERE cp.id_formulario = $1
+    `,
+    values: [id_formulario],
+  };
+  const { rows } = await pool.query(query);
+  return rows;
+};
+
 
 const solicitudesPorEstado = async () => {
-    const query = {
-      text: `
-        SELECT 
-          formulario.ci,
-          formulario.nombres,
-          formulario.apellido_paterno,
-          formulario.apellido_materno,
-          formulario.nombre_propuesta AS titulo,
-          formulario.fecha,
-          formulario.estado,
-          formulario_estado.comentario
-        FROM formulario
-        LEFT JOIN formulario_estado 
-          ON formulario.id_formulario = formulario_estado.id_formulario
-        WHERE formulario.estado IN (4, 5, 6)
-        and formulario_estado.comentario<>'0'
-        GROUP BY 
-          formulario.ci, 
-          formulario.nombres, 
-          formulario.apellido_paterno, 
-          formulario.apellido_materno, 
-          formulario.nombre_propuesta, 
-          formulario.fecha, 
-          formulario.estado, 
-          formulario_estado.comentario
-      `,
-    };
-  
-    const { rows } = await pool.query(query);
-    return rows;
+  const query = {
+    text: `
+      SELECT 
+        p.ci,
+        p.nombres,
+        p.apellido_paterno,
+        p.apellido_materno,
+        cp.nombre_propuesta AS titulo,
+        cp.fecha,
+        cp.estado,
+        ce.comentario
+      FROM carta_propuesta cp
+      LEFT JOIN formulario_estado ce 
+        ON cp.id_formulario = ce.id_formulario
+      JOIN cuentas c 
+        ON cp.id_cuenta = c.id_cuenta
+      JOIN persona p 
+        ON c.id_persona = p.id_persona
+      WHERE cp.estado IN (4, 5, 6)
+        AND ce.comentario <> '0'
+      GROUP BY 
+        p.ci, 
+        p.nombres, 
+        p.apellido_paterno, 
+        p.apellido_materno, 
+        cp.nombre_propuesta, 
+        cp.fecha, 
+        cp.estado, 
+        ce.comentario
+    `,
   };
 
-  const revisionId = async (id_cuenta, nombre_rubro, tipo_Actividades) => {
-    const query = `
-        SELECT f.id_formulario, f.nombre_propuesta, f.categoria, f.estado, f.fecha
-        FROM formulario f
-        WHERE f.estado > 0
-        and f.id_cuenta = $1
-    `
-    ;
-    const { rows } = await pool.query(query, [id_cuenta]);
-    return rows;
+  const { rows } = await pool.query(query);
+  return rows;
 };
+
+
+const revisionId = async (id_cuenta) => {
+  const query = `
+      SELECT 
+        f.id_formulario, 
+        f.nombre_propuesta, 
+        c.id_categoria,  -- trae el nombre de la categoría
+        f.estado, 
+        f.fecha
+      FROM carta_propuesta f
+      JOIN categoria c ON f.id_categoria = c.id_categoria
+      WHERE f.estado > 0
+        AND f.id_cuenta = $1
+    `;
+
+  const { rows } = await pool.query(query, [id_cuenta]);
+  console.log(rows)
+  return rows;
+};
+
 
 const comentariosFormularios = async (id_formulario) => {
   const query = `
@@ -104,10 +127,10 @@ const comentariosFormularios = async (id_formulario) => {
 
 
 
-  export const solicitudModel = {
-    solicitudesPendientes,
-    solicitudPendId,
-    solicitudesPorEstado, // Nueva función añadida
-    revisionId,
-    comentariosFormularios,
-  };
+export const solicitudModel = {
+  solicitudesPendientes,
+  solicitudPendId,
+  solicitudesPorEstado, // Nueva función añadida
+  revisionId,
+  comentariosFormularios,
+};
