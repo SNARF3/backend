@@ -6,7 +6,8 @@ import formularioRouter from './routes/formulario.routes.js'
 import cors from 'cors'; 
 import bodyParser from 'body-parser';
 import proyectosRouter from './routes/proyectos.routes.js'
-import calendarioRouter from './routes/calendario.routes.js'
+import calendarioRouter from './routes/calendario.routes.js';
+import revisionesRouter from './routes/revisiones.routes.js';
 
 const app = express();
 
@@ -20,6 +21,7 @@ app.use(cuentasRoutes);
 app.use(formularioRouter);
 app.use(proyectosRouter);
 app.use(calendarioRouter);
+app.use(revisionesRouter);
 // Iniciar el servidor
 app.listen(port)
 console.log("server on port ", port);
