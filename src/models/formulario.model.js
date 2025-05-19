@@ -18,7 +18,7 @@ const EnviarFormularioPG = async ({
                 estado,
                 fecha,
                 id_categoria
-            ) VALUES ($1, $2, $3, $4, 0, CURRENT_DATE, $5)
+            ) VALUES ($1, $2, $3, $4, 1, CURRENT_DATE, $5)
             RETURNING id_formulario;
         `;
         const values = [
@@ -38,97 +38,66 @@ const EnviarFormularioPG = async ({
 
 
 const EnviarTrabajoDirigidoPG = async ({
-    nroDocumento,
-    nombres,
-    apellidoPaterno,
-    apellidoMaterno,
-    correo,
-    proyectoTrabajo,
     id_cuenta,
+    proyectoTrabajo,
 }) => {
     try {
         const query = `
-            INSERT INTO formulario (
-                ci,
-                nombres,
-                apellido_paterno,
-                apellido_materno,
-                correo, 
+            INSERT INTO carta_propuesta (
+                id_cuenta,
                 carta,
-                tipo,
+                estado,
                 fecha,
-                id_cuenta    
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+                id_categoria
+            ) VALUES ($1, $2, 0, CURRENT_DATE, 2)
             RETURNING id_formulario;
         `;
-
-        // Validar que se reciban todos los parámetros necesarios
-        if (!nroDocumento || !nombres || !apellidoPaterno || !apellidoMaterno || !correo || !proyectoTrabajo || !id_cuenta) {
-            throw new Error("Todos los campos son obligatorios para insertar el formulario");
-        }
-
-        // Ajuste en el valor para la fecha (usa `CURRENT_TIMESTAMP` en la consulta SQL para evitar errores de formato)
-        const values = [
-            nroDocumento,
-            nombres,
-            apellidoPaterno,
-            apellidoMaterno,
-            correo,
-            proyectoTrabajo, // El archivo 'proyectoTrabajo' se guarda en la columna 'carta'
-            2, // Tipo predeterminado (siempre es 2 para "trabajo dirigido")
-            new Date(), // Fecha actual generada en JavaScript
-            id_cuenta,
-        ];
-
+        const values = [id_cuenta, proyectoTrabajo];
         const result = await pool.query(query, values);
-
-        return result.rows[0]; // Devuelve el registro insertado
+        return result.rows[0];
     } catch (error) {
-        console.error("Error al insertar el formulario:", error);
-
-        // Lanzar el error para que sea manejado en el controlador
-        throw new Error("No se pudo insertar el formulario: " + error.message);
+        console.error("Error al insertar trabajo dirigido:", error);
+        throw error;
     }
 };
-
-
-
-
 
 
 // Cambiar el estado del formulario
 const CambiarEstadoFormulario = async (id_formulario, nuevo_estado) => {
     try {
         const query = `
-            UPDATE formulario
+            UPDATE carta_propuesta
             SET estado = $1
             WHERE id_formulario = $2
             RETURNING *;
         `;
         const values = [nuevo_estado, id_formulario];
         const result = await pool.query(query, values);
-        return result.rows[0]; // Devuelve el formulario actualizado
+        return result.rows[0];
     } catch (error) {
-        console.error("Error al cambiar el estado del formulario:", error);
+        console.error("Error al cambiar estado:", error);
         throw error;
     }
 };
 
-const DejarObservacion = async({id_formulario, id_cuenta, comentario})=> {
-    try{
-        const query = 
-        `
-        select insertarComentario ($1, $2, $3);
+const DejarObservacion = async ({ id_formulario, id_cuenta, comentario }) => {
+    try {
+        const query = `
+            INSERT INTO formulario_estado (
+                id_formulario,
+                id_cuenta,
+                comentario
+            ) VALUES ($1, $2, $3)
+            RETURNING *;
         `;
-        const values = [id_cuenta, id_formulario, comentario];
+        const values = [id_formulario, id_cuenta, comentario];
         const result = await pool.query(query, values);
         return result.rows[0];
-    }catch(error){
-        console.log("paso algo: " , error)
+    } catch (error) {
+        console.error("Error al insertar comentario:", error);
         return false;
     }
 };
-
 
 export const formularioModel = {
     EnviarFormularioPG,
