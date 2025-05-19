@@ -35,6 +35,7 @@ const drive = google.drive({ version: 'v3', auth });
 
 const cartasFolderId = '1Hj3H5jOWbASKB1ai9FDaiLJf-pW3Z2gk';
 const propuestasFolderId = '1P_wQDR7TiCHC6yeF_YU4nHY6rHxvH6ub';
+const perfilFolderId = '1tm4E0fljZJtfzf79dA2NR-5QASaBCMHn';
 
 // Función para subir archivo a Google Drive
 const uploadToGoogleDrive = async (fileBuffer, fileName, folderId) => {
@@ -76,4 +77,4 @@ const fileUpload = upload.fields([
   { name: 'detallePropuesta', maxCount: 1 }
 ]);
 
-export { fileUpload, uploadToGoogleDrive, cartasFolderId, propuestasFolderId };
+export { fileUpload, uploadToGoogleDrive, cartasFolderId, propuestasFolderId , perfilFolderId};

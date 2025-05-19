@@ -7,6 +7,7 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import proyectosRouter from './routes/proyectos.routes.js'
 import calendarioRouter from './routes/calendario.routes.js'
+import progresoRouter from './routes/progreso.routes.js'
 
 const app = express();
 
@@ -20,6 +21,7 @@ app.use(cuentasRoutes);
 app.use(formularioRouter);
 app.use(proyectosRouter);
 app.use(calendarioRouter);
+app.use(progresoRouter);
 // Iniciar el servidor
 app.listen(port)
 console.log("server on port ", port);
