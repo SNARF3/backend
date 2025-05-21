@@ -18,6 +18,20 @@ const obtenerMarcoTeorico = async ({id_cuenta}) => {
     return rows;
 }
 
+const obtenerTodoMarcoTeorico = async ({id_progreso}) => {
+    const query = {
+        text: 
+            `select p.descripcion, p.tipo, p.marco_teorico as link
+            from marco_teorico p
+            where id_progreso = $1
+            and estado_marco != 3;
+        `,
+        values: [id_progreso]
+    }
+    const { rows } = await pool.query(query);
+    return rows;
+}
+
 export const marcoTeoricoModel = {
     obtenerMarcoTeorico,
 }

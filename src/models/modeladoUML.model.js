@@ -18,6 +18,23 @@ const obtenerModeladoUML = async ({id_cuenta}) => {
     return rows;
 }
 
+const obtenerTodoModeladoUML = async ({id_progreso}) => {
+    const query = {
+        text: 
+            `select p.descripcion, td.nombre_tipo as tipo, d.doc_diagrama as link
+            from modelado_uml p, diagramas d, tipo_diagrama td
+            where p.id_progreso = d.id_progreso
+            and d.id_tipo = td.id_tipo
+            and p.id_progreso = $1
+            and estado_modelado != 3;;
+        `,
+        values: [id_progreso]
+    }
+    const { rows } = await pool.query(query);
+    return rows;
+}
+
 export const modeladoUMLModel = {
     obtenerModeladoUML,
+    obtenerTodoModeladoUML,
 }
