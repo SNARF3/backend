@@ -25,7 +25,7 @@ const Registrar = async (req, res) => {
             return res.status(409).json({ ok: false, msg: "El correo debe pertenecer al dominio @ucb.edu.bo" });
         } else if (ci.length < 4) {
             return res.status(409).json({ ok: false, msg: "El Carnet de identidad ingresado es incorrecto" });
-        } else if (![1, 2, 3].includes(Number(rol))) {
+        } else if (![1, 2, 3, 4, 5, 6].includes(Number(rol))) {
             return res.status(409).json({ ok: false, msg: "Rol inválido. Debe ser 0 (Admin), 1 (Docente) o 2 (Estudiante)" });
         } else {
             try {
