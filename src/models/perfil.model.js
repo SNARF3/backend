@@ -18,6 +18,35 @@ const obtenerPerfil = async ({id_cuenta}) => {
     return rows;
 }
 
+const obtenerTodoPerfil = async ({id_progreso}) => {
+    const query = {
+        text: 
+            `select p.descripcion, p.tipo, p.perfil as link
+            from perfil p
+            where id_progreso = $1
+            and estado_perfil != 3;
+        `,
+        values: [id_progreso]
+    }
+    const { rows } = await pool.query(query);
+    return rows;
+}
+
+const agregarRevision = async (estado_perfil, comentario,  id_progreso) => {
+    const query = {
+        text: 
+            `update perfil
+            set estado_perfil = $1, comentario = $2
+            where id_progreso = $3;
+        `,
+        values: [estado_perfil, comentario, id_progreso]
+    };
+    const { rows } = await pool.query(query);
+    return rows;
+}
+
 export const perfilModel = {
     obtenerPerfil,
+    obtenerTodoPerfil,
+    agregarRevision
 }
