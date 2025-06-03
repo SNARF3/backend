@@ -10,6 +10,8 @@ import calendarioRouter from './routes/calendario.routes.js';
 import revisionesRouter from './routes/revisiones.routes.js';
 import perfilRouter from './routes/perfil.routes.js';
 import modeladoUMLRouter from './routes/modeladoUML.routes.js';
+import cursoRouter from './routes/curso.routes.js';
+import progresoRouter from './routes/progreso.routes.js';
 
 
 const app = express();
@@ -27,6 +29,10 @@ app.use(calendarioRouter);
 app.use(revisionesRouter);
 app.use(perfilRouter);
 app.use(modeladoUMLRouter);
+app.use('/curso', cursoRouter)
+app.use('/progreso', progresoRouter);
+
 // Iniciar el servidor
+
 app.listen(port)
 console.log("server on port ", port);
