@@ -1,6 +1,9 @@
-import { Router } from "express";
-import { proyectoController} from "../controllers/proyectos.controllers.js";
+import express from 'express';
+import { ProyectoController } from '../controllers/proyectos.controllers.js';
 
-const router = Router();
-router.post("/Proyectos",proyectoController.BuscarProyectos)
+const router = express.Router();
+
+
+router.get('/buscar', ProyectoController.buscar);
+
 export default router;

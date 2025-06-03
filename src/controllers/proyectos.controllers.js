@@ -1,15 +1,40 @@
-import { proyectosmodel } from '../models/proyectos.model.js';
+import { ProyectosModel } from '../models/proyectos.model.js';
 
-export const BuscarProyectos = async(req, res) => {
+
+const buscar = async (req, res) => {
     try {
-        const { anio, categoria, titulo } = req.body;
-        const resultado = await proyectosmodel.BuscarProyecto(anio, categoria, titulo);
-        return res.send(resultado);
-    } catch (error) {
-        console.log("Error al buscar proyectos: ", error); // Corrección de console.log
-    }
-};
+        const { anio, modalidad, titulo, tutor, page = 1, limit = 10 } = req.query; // Usando query params
 
-export const proyectoController = {
-    BuscarProyectos
+        // Validaciones
+        if (isNaN(page) || isNaN(limit)) {
+            return res.status(400).json({ error: "Parámetros de paginación inválidos" });
+        }
+
+        const offset = (page - 1) * limit;
+        const filters = { anio, modalidad, titulo, tutor, limit, offset };
+
+        const proyectos = await ProyectosModel.buscar(filters);
+
+        res.json({
+            success: true,
+            data: proyectos,
+            pagination: {
+                page: Number(page),
+                limit: Number(limit),
+                total: proyectos.length
+            }
+        });
+
+    } catch (error) {
+        console.error("Error en ProyectoController.buscar:", error);
+        res.status(500).json({
+            success: false,
+            error: "Error interno al buscar proyectos"
+        });
+    }
+}
+
+
+export const ProyectoController = {
+    buscar
 };
