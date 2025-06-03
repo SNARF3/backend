@@ -1,5 +1,24 @@
 import {pool} from "../db.js"
 
+const obtenerCorreosPorRol = async (rol) => {
+    const query = {
+        text: `
+        SELECT p.correo
+        FROM cuentas c
+        JOIN persona p ON c.id_persona = p.id_persona
+        WHERE c.id_rol = $1 AND c.activo = true
+        `,
+        values: [rol],
+    };
+
+    try {
+        const { rows } = await pool.query(query);
+        return rows;
+    } catch (error) {
+        console.error('Error al obtener correos por rol:', error);
+        throw error;
+    }
+};
 
 const InsertarActividad = async (Fecha, Detalle) => {
     try {
@@ -53,5 +72,6 @@ const EliminarActividad = async (Fecha) => {
 export const CalendarioModel = {
     InsertarActividad,
     VerActividad,
-    EliminarActividad
+    EliminarActividad,
+    obtenerCorreosPorRol
 };

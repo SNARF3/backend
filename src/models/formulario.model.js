@@ -99,9 +99,28 @@ const DejarObservacion = async ({ id_formulario, id_cuenta, comentario }) => {
     }
 };
 
+const obtenerCategorias = async () => {
+    const query = {
+        text: `
+        SELECT id_categoria, nombre
+        FROM categoria
+        `,
+        values: [],
+    };
+
+    try {
+        const { rows } = await pool.query(query);
+        return rows;
+    } catch (error) {
+        console.error('Error al obtener categorías:', error);
+        throw error;
+    }
+};
+
 export const formularioModel = {
     EnviarFormularioPG,
     CambiarEstadoFormulario,
     EnviarTrabajoDirigidoPG,
-    DejarObservacion
+    DejarObservacion,
+    obtenerCategorias
 };

@@ -163,8 +163,32 @@ export const DejarObservacion = async (req, res) => {
     }
 };
 
+export const obtenerCategorias = async (req, res) => {
+    try {
+        // Llama al modelo para obtener las categorías
+        const categorias = await formularioModel.obtenerCategorias();
+
+        // Responde con éxito y los datos obtenidos
+        return res.status(200).json({
+            ok: true,
+            categorias,
+        });
+    } catch (error) {
+        console.error('Error al obtener categorías:', error);
+
+        // Envía una respuesta de error al cliente
+        return res.status(500).json({
+            ok: false,
+            msg: 'Error al obtener las categorías',
+            error: error.message,
+        });
+    }
+};
+
 export const formularioController = {
     enviarFormulario,
+    enviarTrabajoDirigido,
     cambiarEstadoFormulario,
     DejarObservacion,
-}
+    obtenerCategorias, // Agregado al objeto de exportación
+};
