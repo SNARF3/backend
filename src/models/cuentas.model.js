@@ -14,28 +14,22 @@ const crearCuenta = async ({ nombres, apellidoPat, apellidoMat, correo, ci }) =>
     return rows;
 };
 
-const crearUsuario = async ({usuario, contrasenia, rol, foto_perfil, id_persona, hab}) => {
-    try {
-      const query = {
-        text: `
+const crearUsuario = async ({ usuario, contrasenia, rol, foto_perfil, id_persona, hab }) => {
+    const query = `
         INSERT INTO cuentas (usuario, contrasenia, id_rol, foto_perfil, id_persona, activo)
-        VALUES ($1, $2, $3, $4, $5, $6) RETURNING id_cuenta
-        `,
-        values: [usuario, contrasenia, rol, foto_perfil, id_persona, hab],
-      };
-      const { rows } = await pool.query(query);
-      return rows;
-    } catch (error) {
-      // Detectar violación de clave única
-      if (error.code === '23505') { // Código de error Postgres para UNIQUE VIOLATION
-        throw new Error('Usuario ya existe');
-      } else {
-        throw error; // Otro error, se lanza normalmente
-      }
-    }
-  };
-  
+        VALUES ($1, $2, $3, $4, $5, $6)
+        RETURNING id_cuenta;
+    `;
+    const values = [usuario, contrasenia, rol, foto_perfil, id_persona, hab];
 
+    try {
+        const { rows } = await pool.query(query, values);
+        return rows[0]; // Devuelve el registro creado con id_cuenta
+    } catch (error) {
+        console.error('Error al crear usuario:', error);
+        throw error;
+    }
+};
 
 // Función para verificar las credenciales del usuario en el login
 const verificarCredenciales = async (id_cuenta) => {
@@ -184,6 +178,23 @@ const obtenerRoles = async () => {
     }
 };
 
+const insertarProgreso = async ({ id_estudiante, id_curso, id_tutor, estado_progreso }) => {
+    const query = `
+        INSERT INTO progreso (id_estudiante, id_curso, id_tutor, estado_progreso)
+        VALUES ($1, $2, $3, $4)
+        RETURNING *;
+    `;
+    const values = [id_estudiante, id_curso, id_tutor, estado_progreso];
+
+    try {
+        const { rows } = await pool.query(query, values);
+        return rows[0];
+    } catch (error) {
+        console.error('Error al insertar progreso:', error);
+        throw error;
+    }
+};
+
 export const cuentasModel = {
     crearCuenta,
     verificarCredenciales,
@@ -194,4 +205,5 @@ export const cuentasModel = {
     verificarIdYContrasenia,
     actualizarContrasenia,
     obtenerRoles, // Agregado al objeto de exportación
+    insertarProgreso, // Agregado al objeto de exportación
 };
