@@ -14,6 +14,7 @@ import marcoteoricoRouter from './routes/marcoTeorico.routes.js';
 import metodologiaVidaUtilRouter from './routes/metodologiaVidautil.routes.js';
 import bdModeloC4Router from './routes/bdModeloC4.routes.js';
 import analisisPreliminarRouter from './routes/analisisPreliminar.routes.js';
+import diagramasRouter from './routes/diagramas.routes.js';
 
 const app = express();
 
@@ -34,6 +35,7 @@ app.use(marcoteoricoRouter);
 app.use(metodologiaVidaUtilRouter);
 app.use(bdModeloC4Router);
 app.use(analisisPreliminarRouter);
+app.use(diagramasRouter);
 
 // Iniciar el servidor
 app.listen(port)
