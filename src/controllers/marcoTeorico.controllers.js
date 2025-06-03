@@ -1,4 +1,4 @@
-import { marcoTeoricoModel } from "../models/marcoTeorico.model";
+import { marcoTeoricoModel } from "../models/marcoTeorico.model.js";
 
 export const obtenerMarcoTeorico = async (req, res) => {
     try {

@@ -35,6 +35,7 @@ const drive = google.drive({ version: 'v3', auth });
 
 const cartasFolderId = '1Hj3H5jOWbASKB1ai9FDaiLJf-pW3Z2gk';
 const propuestasFolderId = '1P_wQDR7TiCHC6yeF_YU4nHY6rHxvH6ub';
+const perfilesFolderId = '1tm4E0fljZJtfzf79dA2NR-5QASaBCMHn';
 
 // Función para subir archivo a Google Drive
 const uploadToGoogleDrive = async (fileBuffer, fileName, folderId) => {
@@ -73,7 +74,8 @@ const uploadToGoogleDrive = async (fileBuffer, fileName, folderId) => {
 // Middleware para manejar la carga de archivos con multer
 const fileUpload = upload.fields([
   { name: 'proyectoTrabajo', maxCount: 1 },
-  { name: 'detallePropuesta', maxCount: 1 }
+  { name: 'detallePropuesta', maxCount: 1 },
+  { name: 'perfilFile', maxCount: 1 } // Campo para el archivo del perfil
 ]);
 
-export { fileUpload, uploadToGoogleDrive, cartasFolderId, propuestasFolderId };
+export { fileUpload, uploadToGoogleDrive, cartasFolderId, propuestasFolderId, perfilesFolderId };
