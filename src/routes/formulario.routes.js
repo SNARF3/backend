@@ -1,4 +1,3 @@
-
 import { fileUpload } from "../middlewares/upload.js"; // Middleware de Multer
 import { formularioController } from "../controllers/formulario.controllers.js";
 import { Router } from "express";
@@ -26,5 +25,7 @@ router.post(
 router.patch("/cambiarEstado/:id_formulario/:nuevo_estado", formularioController.cambiarEstadoFormulario);
 
 router.post('/RegistrarObservacion', formularioController.DejarObservacion)
+
+router.get('/obtenerCategorias', formularioController.obtenerCategorias); // Nueva ruta agregada
 
 export default router;

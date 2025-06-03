@@ -203,6 +203,66 @@ const cambiarContrasenia = async (req, res) => {
 };
 
 
+const verificarIdYContrasenia = async (req, res) => {
+    try {
+        const { id_cuenta, contrasenia } = req.body;
+
+        // Validar que todos los campos estén presentes
+        if (!id_cuenta || !contrasenia) {
+            return res.status(400).json({
+                ok: false,
+                msg: 'ID de usuario y contraseña son obligatorios',
+            });
+        }
+
+        // Verificar si el ID y la contraseña son válidos
+        const esValido = await cuentasModel.verificarIdYContrasenia(id_cuenta, contrasenia);
+
+        if (esValido) {
+            return res.status(200).json({
+                ok: true,
+                msg: 'ID y contraseña válidos',
+            });
+        } else {
+            return res.status(401).json({
+                ok: false,
+                msg: 'ID o contraseña incorrectos, o la cuenta no está activa',
+            });
+        }
+    } catch (error) {
+        console.error('Error al verificar ID y contraseña:', error);
+        return res.status(500).json({
+            ok: false,
+            msg: 'Error en el servidor al verificar ID y contraseña',
+            error: error.message,
+        });
+    }
+};
+
+
+const obtenerRoles = async (req, res) => {
+    try {
+        // Llama al modelo para obtener los roles
+        const roles = await cuentasModel.obtenerRoles();
+
+        // Responde con éxito y los datos obtenidos
+        return res.status(200).json({
+            ok: true,
+            roles,
+        });
+    } catch (error) {
+        // Loguea el error para depuración
+        console.error('Error al obtener roles:', error);
+
+        // Envía una respuesta de error al cliente
+        return res.status(500).json({
+            ok: false,
+            msg: 'Error al obtener los roles',
+            error: error.message,
+        });
+    }
+};
+
 
 // Funciones de generación de usuario y contraseña
 function genPassword(ci, apellidoPat) {
@@ -218,4 +278,6 @@ export const cuentasController = {
     login,
     obtenerDocentesYEstudiantes,
     cambiarContrasenia,
+    verificarIdYContrasenia,
+    obtenerRoles, // Agregado al objeto de exportación
 };
