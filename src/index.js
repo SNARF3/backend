@@ -10,7 +10,8 @@ import calendarioRouter from './routes/calendario.routes.js';
 import revisionesRouter from './routes/revisiones.routes.js';
 import perfilRouter from './routes/perfil.routes.js';
 import modeladoUMLRouter from './routes/modeladoUML.routes.js';
-
+import marcoteoricoRouter from './routes/marcoTeorico.routes.js';
+import metodologiaVidaUtilRouter from './routes/metodologiaVidautil.routes.js';
 
 const app = express();
 
@@ -27,6 +28,9 @@ app.use(calendarioRouter);
 app.use(revisionesRouter);
 app.use(perfilRouter);
 app.use(modeladoUMLRouter);
+app.use(marcoteoricoRouter);
+app.use(metodologiaVidaUtilRouter);
+
 // Iniciar el servidor
 app.listen(port)
 console.log("server on port ", port);

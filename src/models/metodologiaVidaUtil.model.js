@@ -18,6 +18,21 @@ const obtenerMetodologiaVidaUtil = async ({id_cuenta}) => {
     return rows;
 }
 
+const obtenerTodoMetodologiaVidaUtil = async ({id_progreso}) => {
+    const query = {
+        text: 
+            `select p.descripcion, p.tipo, p.metodologia as link
+            from metodologia_vida_util p
+            where id_progreso = $1
+            and estado_presentacion != 3;
+        `,
+        values: [id_progreso]
+    }
+    const { rows } = await pool.query(query);
+    return rows;
+}
+
 export const metodologiaVidaUtilModel = {
     obtenerMetodologiaVidaUtil,
+    obtenerTodoMetodologiaVidaUtil,
 }

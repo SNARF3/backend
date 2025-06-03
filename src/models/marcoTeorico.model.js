@@ -34,4 +34,5 @@ const obtenerTodoMarcoTeorico = async ({id_progreso}) => {
 
 export const marcoTeoricoModel = {
     obtenerMarcoTeorico,
+    obtenerTodoMarcoTeorico,
 }
