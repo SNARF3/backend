@@ -15,6 +15,8 @@ import metodologiaVidaUtilRouter from './routes/metodologiaVidautil.routes.js';
 import bdModeloC4Router from './routes/bdModeloC4.routes.js';
 import analisisPreliminarRouter from './routes/analisisPreliminar.routes.js';
 import diagramasRouter from './routes/diagramas.routes.js';
+import actividadesRouter from './routes/actividades.routes.js';
+
 
 const app = express();
 
@@ -36,6 +38,7 @@ app.use(metodologiaVidaUtilRouter);
 app.use(bdModeloC4Router);
 app.use(analisisPreliminarRouter);
 app.use(diagramasRouter);
+app.use(actividadesRouter);
 
 // Iniciar el servidor
 app.listen(port)
