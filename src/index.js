@@ -12,6 +12,7 @@ import perfilRouter from './routes/perfil.routes.js';
 import modeladoUMLRouter from './routes/modeladoUML.routes.js';
 import marcoteoricoRouter from './routes/marcoTeorico.routes.js';
 import metodologiaVidaUtilRouter from './routes/metodologiaVidautil.routes.js';
+import bdModeloC4Router from './routes/bdModeloC4.routes.js';
 
 const app = express();
 
@@ -30,6 +31,7 @@ app.use(perfilRouter);
 app.use(modeladoUMLRouter);
 app.use(marcoteoricoRouter);
 app.use(metodologiaVidaUtilRouter);
+app.use(bdModeloC4Router);
 
 // Iniciar el servidor
 app.listen(port)

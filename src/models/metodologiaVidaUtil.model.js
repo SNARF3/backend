@@ -32,7 +32,39 @@ const obtenerTodoMetodologiaVidaUtil = async ({id_progreso}) => {
     return rows;
 }
 
+const insertarOActualizarMetodologiaVidaUtil = async ({ id_estudiante, descripcion, metodologia, fecha }) => {
+    // Obtener el id_progreso del estudiante
+    const queryIdProgreso = {
+        text: `SELECT id_progreso FROM progreso WHERE id_estudiante = $1`,
+        values: [id_estudiante]
+    };
+    const { rows: progresoRows } = await pool.query(queryIdProgreso);
+    if (progresoRows.length === 0) {
+        throw new Error('No se encontró progreso para el estudiante proporcionado.');
+    }
+    const id_progreso = progresoRows[0].id_progreso;
+
+    // Insertar o actualizar la metodología de vida útil
+    const query = {
+        text: `
+            INSERT INTO metodologia_vida_util (id_progreso, descripcion, metodologia, estado_presentacion, comentario_presentacion, fecha, id_panelista)
+            VALUES ($1, $2, $3, 1, ' ', $4, 5)
+            ON CONFLICT (id_progreso)
+            DO UPDATE SET
+                descripcion = EXCLUDED.descripcion,
+                metodologia = EXCLUDED.metodologia,
+                estado_presentacion = EXCLUDED.estado_presentacion,
+                comentario_presentacion = EXCLUDED.comentario_presentacion,
+                fecha = EXCLUDED.fecha;
+        `,
+        values: [id_progreso, descripcion, metodologia, fecha]
+    };
+    const { rows } = await pool.query(query);
+    return rows;
+}
+
 export const metodologiaVidaUtilModel = {
     obtenerMetodologiaVidaUtil,
     obtenerTodoMetodologiaVidaUtil,
+    insertarOActualizarMetodologiaVidaUtil
 }

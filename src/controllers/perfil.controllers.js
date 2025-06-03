@@ -16,8 +16,6 @@ export const obtenerPerfil = async (req, res) => {
 
 export const insertarOActualizarPerfil = async (req, res) => {
     try {
-        console.log("Siuuuuuu");
-        console.log(req.body);
         const { token, descripcion } = req.body;
         const data = await decodedToken(token);
         const { id_cuenta } = data;
