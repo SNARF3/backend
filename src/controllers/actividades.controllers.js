@@ -89,6 +89,48 @@ export const obtenerUsuarioPorId = async (req, res) => {
     }
 };
 
+export const eliminarCurso = async (req, res) => {
+    try {
+        const { id_curso } = req.params;
+
+        if (!id_curso) {
+            return res.status(400).json({ ok: false, msg: "Falta el parámetro id_curso" });
+        }
+
+        const cursoEliminado = await actividadesModel.eliminarCurso(id_curso);
+
+        if (!cursoEliminado) {
+            return res.status(404).json({ ok: false, msg: "Curso no encontrado" });
+        }
+
+        return res.status(200).json({ ok: true, msg: "Curso eliminado exitosamente", curso: cursoEliminado });
+    } catch (error) {
+        console.error("Error al eliminar curso:", error);
+        return res.status(500).json({ ok: false, msg: "Error al eliminar curso" });
+    }
+};
+
+export const obtenerEstudiantesConDetalles = async (req, res) => {
+    try {
+        const estudiantes = await actividadesModel.obtenerEstudiantesConDetalles();
+
+        const headersEstudiantes = [
+            { text: 'Nombre', value: 'nombre' },
+            { text: 'Apellido Paterno', value: 'apellido_paterno' },
+            { text: 'Apellido Materno', value: 'apellido_materno' },
+            { text: 'ID Progreso', value: 'id_progreso' },
+            { text: 'Curso', value: 'curso' },
+            { text: 'Tutor', value: 'tutor' },
+            { text: 'Panelista', value: 'panelista' },
+        ];
+
+        return res.status(200).json({ ok: true, headersEstudiantes, estudiantes });
+    } catch (error) {
+        console.error("Error al obtener estudiantes con detalles:", error);
+        return res.status(500).json({ ok: false, msg: "Error al obtener estudiantes con detalles" });
+    }
+};
+
 // Exportar todas las funciones como un objeto
 export const actividadesController = {
     insertarCurso,
@@ -97,4 +139,6 @@ export const actividadesController = {
     obtenerProgresos,
     actualizarRegistro,
     obtenerUsuarioPorId,
+    eliminarCurso,
+    obtenerEstudiantesConDetalles,
 };

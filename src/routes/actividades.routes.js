@@ -9,5 +9,7 @@ router.get("/obtenerUsuariosPorRol/:rol", actividadesController.obtenerUsuariosP
 router.get("/obtenerProgresos", actividadesController.obtenerProgresos);
 router.patch("/actualizarRegistro", actividadesController.actualizarRegistro);
 router.get("/obtenerUsuarioPorId/:id_cuenta", actividadesController.obtenerUsuarioPorId);
+router.delete("/eliminarCurso/:id_curso", actividadesController.eliminarCurso);
+router.get("/obtenerEstudiantesConDetalles", actividadesController.obtenerEstudiantesConDetalles);
 
 export default router;
