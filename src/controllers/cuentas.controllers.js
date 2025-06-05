@@ -12,7 +12,7 @@ import {generarToken} from "../middlewares/tokens.js"
 
 const Registrar = async (req, res) => {
     try {
-        const { nombres, apellidoPat, apellidoMat, correo, ci, rol } = req.body;
+        const { nombres, apellidoPat, apellidoMat, correo, ci, rol} = req.body; // Agregamos id_curso e id_tutor
         const user = await cuentasModel.buscarPorcorreo(correo);
         const dominioUcb = /^[a-zA-Z0-9._%+-]+@ucb\.edu\.bo$/;
         const letras = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
@@ -43,6 +43,26 @@ const Registrar = async (req, res) => {
                     hab: true 
                 });
 
+                // Verifica que `newAccount` contenga `id_cuenta`
+                if (!newAccount || !newAccount.id_cuenta) {
+                    throw new Error("No se pudo obtener el id_cuenta del usuario creado");
+                }
+
+                // Si el rol es 3 (Estudiante), insertar en la tabla progreso
+                if (rol === 3) {
+                    try {
+                        await cuentasModel.insertarProgreso({
+                            id_estudiante: newAccount.id_cuenta, // Usamos el id_cuenta del estudiante creado
+                            id_curso: null, // Insertamos null en lugar de 0
+                            id_tutor: null, // Insertamos null en lugar de 0
+                            estado_progreso: 0 // Estado inicial
+                        });
+                    } catch (progresoError) {
+                        console.error('Error al insertar progreso:', progresoError);
+                        return res.status(500).json({ ok: false, msg: 'Error al insertar progreso' });
+                    }
+                }
+
                 // Manejo del envio del correo con los datos necesarios
                 try {
                     await sendEmail({
@@ -55,7 +75,7 @@ const Registrar = async (req, res) => {
                     console.error('Error al enviar el correo:', emailError);
                 }
 
-                return res.status(201).json({ ok: true, msg: "Usuario registrado exitosamente"/*, usuario: newAccount[0].id_cuenta */});
+                return res.status(201).json({ ok: true, msg: "Usuario registrado exitosamente" });
             } catch (error) {
                 return res.status(409).json({ ok: false, msg: "Algo pasó, no se pudo registrar: " + error });
             }
@@ -203,6 +223,66 @@ const cambiarContrasenia = async (req, res) => {
 };
 
 
+const verificarIdYContrasenia = async (req, res) => {
+    try {
+        const { id_cuenta, contrasenia } = req.body;
+
+        // Validar que todos los campos estén presentes
+        if (!id_cuenta || !contrasenia) {
+            return res.status(400).json({
+                ok: false,
+                msg: 'ID de usuario y contraseña son obligatorios',
+            });
+        }
+
+        // Verificar si el ID y la contraseña son válidos
+        const esValido = await cuentasModel.verificarIdYContrasenia(id_cuenta, contrasenia);
+
+        if (esValido) {
+            return res.status(200).json({
+                ok: true,
+                msg: 'ID y contraseña válidos',
+            });
+        } else {
+            return res.status(401).json({
+                ok: false,
+                msg: 'ID o contraseña incorrectos, o la cuenta no está activa',
+            });
+        }
+    } catch (error) {
+        console.error('Error al verificar ID y contraseña:', error);
+        return res.status(500).json({
+            ok: false,
+            msg: 'Error en el servidor al verificar ID y contraseña',
+            error: error.message,
+        });
+    }
+};
+
+
+const obtenerRoles = async (req, res) => {
+    try {
+        // Llama al modelo para obtener los roles
+        const roles = await cuentasModel.obtenerRoles();
+
+        // Responde con éxito y los datos obtenidos
+        return res.status(200).json({
+            ok: true,
+            roles,
+        });
+    } catch (error) {
+        // Loguea el error para depuración
+        console.error('Error al obtener roles:', error);
+
+        // Envía una respuesta de error al cliente
+        return res.status(500).json({
+            ok: false,
+            msg: 'Error al obtener los roles',
+            error: error.message,
+        });
+    }
+};
+
 
 // Funciones de generación de usuario y contraseña
 function genPassword(ci, apellidoPat) {
@@ -218,4 +298,6 @@ export const cuentasController = {
     login,
     obtenerDocentesYEstudiantes,
     cambiarContrasenia,
+    verificarIdYContrasenia,
+    obtenerRoles, // Agregado al objeto de exportación
 };

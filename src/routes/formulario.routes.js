@@ -97,4 +97,6 @@ router.patch("/cambiarEstado/:id_formulario/:nuevo_estado", formularioController
  */
 router.post('/RegistrarObservacion', formularioController.DejarObservacion);
 
+router.get('/obtenerCategorias', formularioController.obtenerCategorias); // Nueva ruta agregada
+
 export default router;

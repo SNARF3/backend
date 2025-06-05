@@ -123,4 +123,8 @@ router.get('/obtUsuarios', cuentasController.obtenerDocentesYEstudiantes);
  */
 router.patch('/cambiarContrasenia', cuentasController.cambiarContrasenia);
 
+router.post('/verificarContrasenia', cuentasController.verificarIdYContrasenia);
+
+router.get('/obtenerRoles', cuentasController.obtenerRoles);
+
 export default router;

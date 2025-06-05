@@ -12,6 +12,12 @@ import perfilRouter from './routes/perfil.routes.js';
 import modeladoUMLRouter from './routes/modeladoUML.routes.js';
 import cursoRouter from './routes/curso.routes.js';
 import progresoRouter from './routes/progreso.routes.js';
+import marcoteoricoRouter from './routes/marcoTeorico.routes.js';
+import metodologiaVidaUtilRouter from './routes/metodologiaVidautil.routes.js';
+import bdModeloC4Router from './routes/bdModeloC4.routes.js';
+import analisisPreliminarRouter from './routes/analisisPreliminar.routes.js';
+import diagramasRouter from './routes/diagramas.routes.js';
+import actividadesRouter from './routes/actividades.routes.js';
 import { setupSwagger } from './swagger.js';
 
 const app = express();
@@ -33,6 +39,12 @@ app.use(perfilRouter);
 app.use(modeladoUMLRouter);
 app.use('/curso', cursoRouter);
 app.use('/progreso', progresoRouter);
+app.use(marcoteoricoRouter);
+app.use(metodologiaVidaUtilRouter);
+app.use(bdModeloC4Router);
+app.use(analisisPreliminarRouter);
+app.use(diagramasRouter);
+app.use(actividadesRouter);
 
 // Iniciar el servidor
 app.listen(port, () => {

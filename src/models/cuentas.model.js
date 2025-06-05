@@ -1,4 +1,5 @@
 import { pool } from "../db.js";
+import bcryptjs from "bcryptjs";
 
 const crearCuenta = async ({ nombres, apellidoPat, apellidoMat, correo, ci }) => {
     //console.log("Intentando crear cuenta con:", { nombres, apellidoPat, apellidoMat, correo, ci });
@@ -13,28 +14,22 @@ const crearCuenta = async ({ nombres, apellidoPat, apellidoMat, correo, ci }) =>
     return rows;
 };
 
-const crearUsuario = async ({usuario, contrasenia, rol, foto_perfil, id_persona, hab}) => {
-    try {
-      const query = {
-        text: `
+const crearUsuario = async ({ usuario, contrasenia, rol, foto_perfil, id_persona, hab }) => {
+    const query = `
         INSERT INTO cuentas (usuario, contrasenia, id_rol, foto_perfil, id_persona, activo)
-        VALUES ($1, $2, $3, $4, $5, $6) RETURNING id_cuenta
-        `,
-        values: [usuario, contrasenia, rol, foto_perfil, id_persona, hab],
-      };
-      const { rows } = await pool.query(query);
-      return rows;
-    } catch (error) {
-      // Detectar violación de clave única
-      if (error.code === '23505') { // Código de error Postgres para UNIQUE VIOLATION
-        throw new Error('Usuario ya existe');
-      } else {
-        throw error; // Otro error, se lanza normalmente
-      }
-    }
-  };
-  
+        VALUES ($1, $2, $3, $4, $5, $6)
+        RETURNING id_cuenta;
+    `;
+    const values = [usuario, contrasenia, rol, foto_perfil, id_persona, hab];
 
+    try {
+        const { rows } = await pool.query(query, values);
+        return rows[0]; // Devuelve el registro creado con id_cuenta
+    } catch (error) {
+        console.error('Error al crear usuario:', error);
+        throw error;
+    }
+};
 
 // Función para verificar las credenciales del usuario en el login
 const verificarCredenciales = async (id_cuenta) => {
@@ -102,7 +97,7 @@ const obtenerCuentasDocentesYEstudiantes = async () => {
             c.id_rol
         FROM cuentas c
         JOIN persona p ON p.id_persona = c.id_persona
-        WHERE c.id_rol IN (2, 3)
+        WHERE c.id_rol IN (2, 3, 4, 5, 6)
         `,
         values: [],
     };
@@ -115,16 +110,31 @@ const obtenerCuentasDocentesYEstudiantes = async () => {
 const verificarIdYContrasenia = async (id_usuario, contrasenia) => {
     const query = {
         text: `
-        SELECT 1
+        SELECT contrasenia
         FROM cuentas
-        WHERE id_cuenta = $1 AND contrasenia = $2 AND hab = 1
+        WHERE id_cuenta = $1 AND activo = true
         `,
-        values: [id_usuario, contrasenia],
+        values: [id_usuario],   
     };
-    const { rows } = await pool.query(query);
 
-    // Devuelve true si existe al menos un resultado, false en caso contrario
-    return rows.length > 0;
+    try {
+        const { rows } = await pool.query(query);
+
+        // Si no se encuentra el usuario o la cuenta no está activa
+        if (rows.length === 0) {
+            return false;
+        }
+
+        const contraseniaHash = rows[0].contrasenia;
+
+        // Comparar la contraseña proporcionada con la contraseña hasheada
+        const esValido = await bcryptjs.compare(contrasenia, contraseniaHash);
+
+        return esValido;
+    } catch (error) {
+        console.error('Error al verificar ID y contraseña:', error);
+        throw error;
+    }
 };
 
 const actualizarContrasenia = async (id_cuenta, nuevaContraseniaHash) => {
@@ -149,7 +159,41 @@ const actualizarContrasenia = async (id_cuenta, nuevaContraseniaHash) => {
     }
 };
 
+const obtenerRoles = async () => {
+    const query = {
+        text: `
+        SELECT id_rol, nombre_rol
+        FROM roles
+        WHERE id_rol > 1
+        `,
+        values: [],
+    };
 
+    try {
+        const { rows } = await pool.query(query);
+        return rows;
+    } catch (error) {
+        console.error('Error al obtener roles:', error);
+        throw error;
+    }
+};
+
+const insertarProgreso = async ({ id_estudiante, id_curso, id_tutor, estado_progreso }) => {
+    const query = `
+        INSERT INTO progreso (id_estudiante, id_curso, id_tutor, estado_progreso)
+        VALUES ($1, $2, $3, $4)
+        RETURNING *;
+    `;
+    const values = [id_estudiante, id_curso, id_tutor, estado_progreso];
+
+    try {
+        const { rows } = await pool.query(query, values);
+        return rows[0];
+    } catch (error) {
+        console.error('Error al insertar progreso:', error);
+        throw error;
+    }
+};
 
 export const cuentasModel = {
     crearCuenta,
@@ -160,4 +204,6 @@ export const cuentasModel = {
     obtenerCuentasDocentesYEstudiantes, // Nueva función añadida
     verificarIdYContrasenia,
     actualizarContrasenia,
+    obtenerRoles, // Agregado al objeto de exportación
+    insertarProgreso, // Agregado al objeto de exportación
 };

@@ -45,8 +45,38 @@ const agregarRevision = async (estado_perfil, comentario,  id_progreso) => {
     return rows;
 }
 
+const insertarOActualizarPerfil = async ({ id_estudiante, descripcion, perfil,fecha_entrega }) => {
+    const queryIdProgreso = {
+        text: `SELECT id_progreso FROM progreso WHERE id_estudiante = $1`,
+        values: [id_estudiante]
+    };
+    const { rows: progresoRows } = await pool.query(queryIdProgreso);
+    if (progresoRows.length === 0) {
+        throw new Error('No se encontró progreso para el estudiante proporcionado.');
+    }
+    const id_progreso = progresoRows[0].id_progreso;
+
+    const query = {
+        text: `
+            INSERT INTO perfil (id_progreso, descripcion, perfil, estado_perfil, comentario_perfil, fecha_entrega)
+            VALUES ($1, $2, $3, 1, ' ', $4)
+            ON CONFLICT (id_progreso)
+            DO UPDATE SET
+                descripcion = EXCLUDED.descripcion,
+                perfil = EXCLUDED.perfil,
+                estado_perfil = EXCLUDED.estado_perfil,
+                comentario_perfil = EXCLUDED.comentario_perfil,
+                fecha_entrega = EXCLUDED.fecha_entrega;
+        `,
+        values: [id_progreso, descripcion, perfil, fecha_entrega]
+    };
+    const { rows } = await pool.query(query);
+    return rows;
+}
+
 export const perfilModel = {
     obtenerPerfil,
     obtenerTodoPerfil,
-    agregarRevision
+    agregarRevision,
+    insertarOActualizarPerfil
 }
