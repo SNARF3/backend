@@ -44,4 +44,6 @@ const router = Router();
  */
 router.get('/modeladoUML/:id_progreso', modeladoUMLController.obtenerModeladoUML);
 
+router.post('/modeladoUML/insertarOActualizar', modeladoUMLController.insertarOActualizarModeladoUML);
+
 export default router;
