@@ -1,5 +1,5 @@
 import { diagramasModel } from "../models/diagramas.model.js";
-import { uploadToGoogleDrive, diagramasFolderId } from "../middlewares/upload.js";
+import { uploadToGoogleDrive, diagramasUMLFolderId } from "../middlewares/upload.js";
 import { decodedToken } from "../middlewares/tokens.js";
 
 export const obtenerDiagramas = async (req, res) => {
@@ -23,7 +23,7 @@ export const insertarOActualizarDiagrama = async (req, res) => {
         // Si se subió un archivo llamado 'diagramaUMLFile', súbelo a Drive y guarda el link
         if (req.files?.diagramaUMLFile?.[0]) {
             const file = req.files.diagramaUMLFile[0];
-            diagrama = await uploadToGoogleDrive(file.buffer, file.originalname, diagramasFolderId);
+            diagrama = await uploadToGoogleDrive(file.buffer, file.originalname, diagramasUMLFolderId);
         }
 
         const resultado = await diagramasModel.insertarOActualizarDiagrama({ id_estudiante, tipo, diagrama });
