@@ -40,6 +40,7 @@ const marcoTeoricoFolderId = '1bTtvna4GWsBrxGQY0gqoOpbN7erFHJla'; // Asumiendo q
 const metodologiaVidaUtilFolderId = '1GBoGsv0bVOFLnXnJxvq-snqqTS1yNjtZ'; // Asumiendo que es el mismo ID que perfiles
 const bdModeloC4FolderId = '1103qWdwE1ky54KboSXlkx0HGAXb6Hd8t'; // Asumiendo que es el mismo ID que perfiles
 const analisisPreliminarFolderId = '11k7hiDwlHgeQHaLmE4ymHU01h_gpYqWv'; // Asumiendo que es el mismo ID que perfiles
+const diagramasUMLFolderId = '1gpUY3agUd5bXEAuLFBfxNQP6aR-fLJE_'; // Asumiendo que es el mismo ID que perfiles
 
 // Función para subir archivo a Google Drive
 const uploadToGoogleDrive = async (fileBuffer, fileName, folderId) => {
@@ -85,7 +86,8 @@ const fileUpload = upload.fields([
   { name: 'bdFile', maxCount: 1 }, // Campo para el archivo de la bd
   { name: 'c4File', maxCount: 1 }, // Campo para el archivo del modelo C4
   { name: 'requerimientosFile', maxCount: 1 }, // Campo para el archivo de análisis preliminar
-  { name: 'wireframesFile', maxCount: 1 } // Campo para el archivo de análisis preliminar
+  { name: 'wireframesFile', maxCount: 1 }, // Campo para el archivo de análisis preliminar
+  { name: 'diagramaUMLFile', maxCount: 1 } // Campo para el archivo de diagramas UML
 ]);
 
 export { fileUpload,
@@ -96,5 +98,6 @@ export { fileUpload,
   marcoTeoricoFolderId, 
   metodologiaVidaUtilFolderId, 
   bdModeloC4FolderId, 
-  analisisPreliminarFolderId 
+  analisisPreliminarFolderId,
+  diagramasUMLFolderId
 };
