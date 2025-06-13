@@ -28,13 +28,24 @@ const buscar = async (req, res) => {
     } catch (error) {
         console.error("Error en ProyectoController.buscar:", error);
         res.status(500).json({
-            success: false,
+            success: false, 
             error: "Error interno al buscar proyectos"
         });
     }
-}
+}   
+
+const obtenerTodosProyectos = async (req, res) => {
+    try {
+        const proyectos = await ProyectosModel.obtenerTodos();
+        res.json(proyectos);
+    } catch (error) {
+        console.error('Error al obtener todos los proyectos:', error);
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }
+};
 
 
 export const ProyectoController = {
-    buscar
+    buscar,
+    obtenerTodosProyectos
 };

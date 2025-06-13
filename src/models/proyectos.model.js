@@ -47,4 +47,24 @@ export class ProyectosModel {
         const { rows } = await pool.query(query, values);
         return rows;
     }
+
+
+    static async obtenerTodos() {
+        const query = `
+            SELECT 
+                p.cod_proyecto, p.estudiante, p.fechadefensa, 
+                p.titulo, p.tutor, p.relator, p.adicional, 
+                p.nro_acta, p.nota, p.telefono, p.fecha_reg, 
+                p.fecha_mod, p.observaciones, p.activo, 
+                m.descripcion AS modalidad
+            FROM proyectos p
+            JOIN modalidad m ON p.cod_modalidad = m.cod_modalidad
+            ORDER BY p.fechadefensa DESC
+        `;
+
+        const { rows } = await pool.query(query);
+        return rows;
+    }
+
+
 }

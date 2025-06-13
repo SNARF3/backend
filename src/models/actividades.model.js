@@ -97,7 +97,7 @@ const obtenerEstudiantesConDetalles = async () => {
             progreso.id_progreso AS id_progreso,
             progreso.id_curso AS curso,
             progreso.id_tutor AS tutor,
-            COALESCE(metodologia_vida_util.id_panelista, 0) AS panelista
+            progreso.id_panelista AS panelista
         FROM cuentas
         JOIN persona ON cuentas.id_persona = persona.id_persona
         LEFT JOIN progreso ON cuentas.id_cuenta = progreso.id_estudiante

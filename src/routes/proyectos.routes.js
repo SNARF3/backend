@@ -49,5 +49,6 @@ const router = express.Router();
  *         description: Error interno del servidor.
  */
 router.get('/buscar', ProyectoController.buscar);
+router.get('/todos', ProyectoController.obtenerTodosProyectos);
 
 export default router;
