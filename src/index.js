@@ -18,6 +18,7 @@ import bdModeloC4Router from './routes/bdModeloC4.routes.js';
 import analisisPreliminarRouter from './routes/analisisPreliminar.routes.js';
 import diagramasRouter from './routes/diagramas.routes.js';
 import actividadesRouter from './routes/actividades.routes.js';
+import tutorRouter from './routes/tutor.routes.js';
 import { setupSwagger } from './swagger.js';
 
 const app = express();
@@ -45,6 +46,7 @@ app.use(bdModeloC4Router);
 app.use(analisisPreliminarRouter);
 app.use(diagramasRouter);
 app.use(actividadesRouter);
+app.use('/',tutorRouter);
 
 // Iniciar el servidor
 app.listen(port, () => {
