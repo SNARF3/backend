@@ -3,18 +3,6 @@ import { actividadesController } from "../controllers/actividades.controllers.js
 
 const router = Router();
 
-/**
- * @swagger
- * tags:
- *   name: Cursos
- *   description: Gestión de cursos académicos
- *   name: Usuarios
- *   description: Gestión de usuarios del sistema
- *   name: Progresos
- *   description: Seguimiento de progreso académico
- *   name: Estudiantes
- *   description: Información detallada de estudiantes
- */
 
 /**
  * @swagger
