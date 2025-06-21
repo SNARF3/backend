@@ -1,7 +1,7 @@
 import { pool } from "../db.js";
 
 export class ProyectosModel {
-    static async buscar({ anio, modalidad, titulo, tutor, limit = 10, offset = 0 }) {
+    static async buscar({ anio, modalidad, titulo, tutor, estudiante, limit = 10, offset = 0 }) {
         const conditions = [];
         const values = [];
         let paramIndex = 1;
@@ -27,6 +27,12 @@ export class ProyectosModel {
         if (tutor) {
             conditions.push(`p.tutor ILIKE $${paramIndex}`);
             values.push(`%${tutor}%`);
+            paramIndex++;
+        }
+
+        if (estudiante) {
+            conditions.push(`p.estudiante ILIKE $${paramIndex}`);
+            values.push(`%${estudiante}%`);
             paramIndex++;
         }
 
