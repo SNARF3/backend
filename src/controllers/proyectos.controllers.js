@@ -3,7 +3,7 @@ import { ProyectosModel } from '../models/proyectos.model.js';
 
 const buscar = async (req, res) => {
     try {
-        const { anio, modalidad, titulo, tutor, page = 1, limit = 10 } = req.query; // Usando query params
+        const { anio, modalidad, titulo, tutor, estudiante, page = 1, limit = 10 } = req.query; // Incluye estudiante
 
         // Validaciones
         if (isNaN(page) || isNaN(limit)) {
@@ -11,7 +11,7 @@ const buscar = async (req, res) => {
         }
 
         const offset = (page - 1) * limit;
-        const filters = { anio, modalidad, titulo, tutor, limit, offset };
+        const filters = { anio, modalidad, titulo, tutor, estudiante, limit, offset }; // Pasa estudiante
 
         const proyectos = await ProyectosModel.buscar(filters);
 
