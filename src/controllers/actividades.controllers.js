@@ -42,6 +42,22 @@ export const obtenerUsuariosPorRol = async (req, res) => {
     }
 };
 
+export const obtenerUsuariosPorRolxd = async (req, res) => {
+    try {
+        const { rol } = req.params;
+
+        if (!rol) {
+            return res.status(400).json({ ok: false, msg: "Falta el parámetro rol" });
+        }
+
+        const usuarios = await actividadesModel.obtenerUsuariosPorRol(rol);
+        return res.status(200).json({ ok: true, usuarios });
+    } catch (error) {
+        console.error("Error al obtener usuarios por rol:", error);
+        return res.status(500).json({ ok: false, msg: "Error al obtener usuarios por rol" });
+    }
+};
+
 export const obtenerProgresos = async (req, res) => {
     try {
         const progresos = await actividadesModel.obtenerProgresos();
@@ -136,6 +152,7 @@ export const actividadesController = {
     insertarCurso,
     obtenerCursos,
     obtenerUsuariosPorRol,
+    obtenerUsuariosPorRolxd,
     obtenerProgresos,
     actualizarRegistro,
     obtenerUsuarioPorId,
