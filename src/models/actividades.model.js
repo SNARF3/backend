@@ -24,6 +24,31 @@ const obtenerUsuariosPorRol = async (rol) => {
         SELECT cuentas.id_cuenta, persona.nombres, persona.apellido_paterno, persona.apellido_materno
         FROM persona
         JOIN cuentas ON persona.id_persona = cuentas.id_persona
+        LEFT JOIN progreso ON cuentas.id_cuenta = progreso.id_tutor
+        WHERE cuentas.id_rol = $1
+        AND (
+            $1 NOT IN (5, 6) OR (
+                SELECT COUNT(*) 
+                FROM progreso 
+                WHERE progreso.id_tutor = cuentas.id_cuenta
+            ) < 3
+        );
+    `;
+    const values = [rol];
+    try {
+        const { rows } = await pool.query(query, values);
+        return rows;
+    } catch (error) {
+        console.error("Error al obtener usuarios por rol:", error);
+        throw error;
+    }
+};
+
+const obtenerUsuariosPorRolxd = async (rol) => {
+    const query = `
+        SELECT cuentas.id_cuenta, persona.nombres, persona.apellido_paterno, persona.apellido_materno
+        FROM persona
+        JOIN cuentas ON persona.id_persona = cuentas.id_persona
         WHERE cuentas.id_rol = $1;
     `;
     const values = [rol];
@@ -96,12 +121,15 @@ const obtenerEstudiantesConDetalles = async () => {
             persona.apellido_materno AS apellido_materno,
             progreso.id_progreso AS id_progreso,
             progreso.id_curso AS curso,
-            progreso.id_tutor AS tutor,
-            progreso.id_panelista AS panelista
+            CONCAT(tutor_persona.nombres, ' ', tutor_persona.apellido_paterno, ' ', tutor_persona.apellido_materno) AS tutor,
+            CONCAT(panelista_persona.nombres, ' ', panelista_persona.apellido_paterno, ' ', panelista_persona.apellido_materno) AS panelista
         FROM cuentas
         JOIN persona ON cuentas.id_persona = persona.id_persona
         LEFT JOIN progreso ON cuentas.id_cuenta = progreso.id_estudiante
-        LEFT JOIN metodologia_vida_util ON metodologia_vida_util.id_progreso = progreso.id_progreso
+        LEFT JOIN cuentas AS tutor ON progreso.id_tutor = tutor.id_cuenta
+        LEFT JOIN persona AS tutor_persona ON tutor.id_persona = tutor_persona.id_persona
+        LEFT JOIN cuentas AS panelista ON progreso.id_panelista = panelista.id_cuenta
+        LEFT JOIN persona AS panelista_persona ON panelista.id_persona = panelista_persona.id_persona
         WHERE cuentas.id_rol = 3;
     `;
 
@@ -114,10 +142,12 @@ const obtenerEstudiantesConDetalles = async () => {
     }
 };
 
+
 export const actividadesModel = {
     insertarCurso,
     obtenerCursos,
     obtenerUsuariosPorRol,
+    obtenerUsuariosPorRolxd,
     obtenerProgresos,
     actualizarRegistro,
     obtenerUsuarioPorId, // Nueva función agregada

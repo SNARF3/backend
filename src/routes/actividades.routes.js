@@ -108,6 +108,7 @@ router.get("/obtenerCursos", actividadesController.obtenerCursos);
  *         description: Error del servidor
  */
 router.get("/obtenerUsuariosPorRol/:rol", actividadesController.obtenerUsuariosPorRol);
+router.get("/obtenerUsuariosPorRolxd/:rol", actividadesController.obtenerUsuariosPorRol);
 
 /**
  * @swagger
