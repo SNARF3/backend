@@ -50,7 +50,7 @@ export const obtenerUsuariosPorRolxd = async (req, res) => {
             return res.status(400).json({ ok: false, msg: "Falta el parámetro rol" });
         }
 
-        const usuarios = await actividadesModel.obtenerUsuariosPorRol(rol);
+        const usuarios = await actividadesModel.obtenerUsuariosPorRolxd(rol);
         return res.status(200).json({ ok: true, usuarios });
     } catch (error) {
         console.error("Error al obtener usuarios por rol:", error);

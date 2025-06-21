@@ -31,6 +31,7 @@ const obtenerUsuariosPorRol = async (rol) => {
                 SELECT COUNT(*) 
                 FROM progreso 
                 WHERE progreso.id_tutor = cuentas.id_cuenta
+                or progreso.id_panelista = cuentas.id_cuenta
             ) < 3
         );
     `;
