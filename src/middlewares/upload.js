@@ -36,11 +36,11 @@ const drive = google.drive({ version: 'v3', auth });
 const cartasFolderId = '1Hj3H5jOWbASKB1ai9FDaiLJf-pW3Z2gk';
 const propuestasFolderId = '1P_wQDR7TiCHC6yeF_YU4nHY6rHxvH6ub';
 const perfilesFolderId = '1tm4E0fljZJtfzf79dA2NR-5QASaBCMHn';
-const marcoTeoricoFolderId = '1bTtvna4GWsBrxGQY0gqoOpbN7erFHJla'; // Asumiendo que es el mismo ID que perfiles
-const metodologiaVidaUtilFolderId = '1GBoGsv0bVOFLnXnJxvq-snqqTS1yNjtZ'; // Asumiendo que es el mismo ID que perfiles
-const bdModeloC4FolderId = '1103qWdwE1ky54KboSXlkx0HGAXb6Hd8t'; // Asumiendo que es el mismo ID que perfiles
-const analisisPreliminarFolderId = '11k7hiDwlHgeQHaLmE4ymHU01h_gpYqWv'; // Asumiendo que es el mismo ID que perfiles
-const diagramasUMLFolderId = '1gpUY3agUd5bXEAuLFBfxNQP6aR-fLJE_'; // Asumiendo que es el mismo ID que perfiles
+const marcoTeoricoFolderId = '1bTtvna4GWsBrxGQY0gqoOpbN7erFHJla'; 
+const metodologiaVidaUtilFolderId = '1GBoGsv0bVOFLnXnJxvq-snqqTS1yNjtZ';
+const bdModeloC4FolderId = '1103qWdwE1ky54KboSXlkx0HGAXb6Hd8t';
+const analisisPreliminarFolderId = '11k7hiDwlHgeQHaLmE4ymHU01h_gpYqWv'; 
+const diagramasUMLFolderId = '1gpUY3agUd5bXEAuLFBfxNQP6aR-fLJE_'; 
 
 // Función para subir archivo a Google Drive
 const uploadToGoogleDrive = async (fileBuffer, fileName, folderId) => {
