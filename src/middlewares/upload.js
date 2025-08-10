@@ -54,7 +54,7 @@ const uploadToGoogleDrive = async (fileBuffer, fileName, folderId) => {
     const fileStream = bufferToStream(fileBuffer);
 
     const media = {
-      mimeType: 'application/pdf', // O el tipo adecuado dependiendo del archivo
+      mimeType: 'application/pdf', // el archivo debe ser pdf
       body: fileStream
     };
 
